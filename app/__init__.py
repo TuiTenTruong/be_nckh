@@ -4,6 +4,8 @@ from app.extensions import db, cors, swagger
 from app.config import config
 from app.api.ingredient_routes import ingredient_bp, category_bp
 from app.api.recipe_routes import recipe_bp
+from app.api.scan_routes import scan_bp
+from app.api.pantry_routes import pantry_bp
 from app.errors.handlers import register_error_handlers
 
 
@@ -60,6 +62,14 @@ def create_app(config_name='development'):
             {
                 "name": "Recipes",
                 "description": "Recipe management endpoints"
+            },
+            {
+                "name": "Scan",
+                "description": "Ingredient scan endpoints"
+            },
+            {
+                "name": "Pantry",
+                "description": "User pantry endpoints"
             }
         ]
     }
@@ -75,6 +85,8 @@ def create_app(config_name='development'):
     app.register_blueprint(ingredient_bp)
     app.register_blueprint(category_bp)
     app.register_blueprint(recipe_bp)
+    app.register_blueprint(scan_bp)
+    app.register_blueprint(pantry_bp)
     
     # Register error handlers
     register_error_handlers(app)
