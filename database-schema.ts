@@ -105,7 +105,6 @@ export interface RecipesTable {
   description: string;           // TEXT, NOT NULL
   image_url: string;             // TEXT, NOT NULL - Anh mon an (Unsplash)
   cook_time_minutes: number;     // INTEGER, NOT NULL - Thoi gian nau (phut)
-  cook_time_display: string;     // VARCHAR(50), NOT NULL - vd: '45 phut'
   difficulty: DifficultyLevel;   // VARCHAR(20), NOT NULL - 'De' | 'Trung binh' | 'Kho'
   servings: number;              // INTEGER, NOT NULL - So nguoi an
   cuisine_type: string | null;   // VARCHAR(50), nullable - vd: 'Viet Nam', 'Han Quoc'

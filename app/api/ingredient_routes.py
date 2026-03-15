@@ -1,4 +1,4 @@
-"""Ingredient API routes"""
+﻿"""Ingredient API routes"""
 from flask import Blueprint, request
 from app.services.ingredient_service import IngredientService, IngredientCategoryService
 from app.utils.response import success_response, error_response, paginated_response, handle_api_error
@@ -8,22 +8,42 @@ ingredient_bp = Blueprint('ingredients', __name__, url_prefix='/api/ingredients'
 category_bp = Blueprint('categories', __name__, url_prefix='/api/categories')
 
 
-# ============================================================================
-# INGREDIENT ROUTES
-# ============================================================================
-
 @ingredient_bp.route('', methods=['GET'])
 @handle_api_error
 def list_ingredients():
     """
     Get all ingredients with pagination and filtering
-    
-    Query Parameters:
-        page: Page number (default: 1)
-        per_page: Items per page (default: 20)
-        category_id: Filter by category ID
-        is_popular: Filter by popular status (true/false)
-        search: Search by name
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: page
+        in: query
+        type: integer
+        default: 1
+        description: Page number
+      - name: per_page
+        in: query
+        type: integer
+        default: 20
+        description: Items per page (max 100)
+      - name: category_id
+        in: query
+        type: string
+        description: Filter by category UUID
+      - name: is_popular
+        in: query
+        type: boolean
+        description: Filter by popular status
+      - name: search
+        in: query
+        type: string
+        description: Search by ingredient name
+    responses:
+      200:
+        description: List of ingredients with pagination
+      400:
+        description: Invalid parameters
     """
     try:
         page = request.args.get('page', 1, type=int)
@@ -61,7 +81,23 @@ def list_ingredients():
 @ingredient_bp.route('/<ingredient_id>', methods=['GET'])
 @handle_api_error
 def get_ingredient(ingredient_id):
-    """Get a single ingredient by ID"""
+    """
+    Get a single ingredient by ID
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: ingredient_id
+        in: path
+        type: string
+        required: true
+        description: Ingredient UUID
+    responses:
+      200:
+        description: Ingredient details
+      404:
+        description: Ingredient not found
+    """
     try:
         ingredient = IngredientService.get_ingredient_by_id(ingredient_id)
         
@@ -77,7 +113,23 @@ def get_ingredient(ingredient_id):
 @ingredient_bp.route('/popular', methods=['GET'])
 @handle_api_error
 def get_popular_ingredients():
-    """Get popular ingredients"""
+    """
+    Get popular ingredients
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: limit
+        in: query
+        type: integer
+        default: 10
+        description: Maximum number of ingredients to return
+    responses:
+      200:
+        description: List of popular ingredients
+      400:
+        description: Invalid parameters
+    """
     try:
         limit = request.args.get('limit', 10, type=int)
         
@@ -98,7 +150,27 @@ def get_popular_ingredients():
 @ingredient_bp.route('/category/<category_id>', methods=['GET'])
 @handle_api_error
 def get_ingredients_by_category(category_id):
-    """Get ingredients by category"""
+    """
+    Get ingredients by category
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: category_id
+        in: path
+        type: string
+        required: true
+        description: Category UUID
+      - name: limit
+        in: query
+        type: integer
+        description: Maximum number of ingredients to return
+    responses:
+      200:
+        description: List of ingredients in category
+      404:
+        description: Category not found
+    """
     try:
         limit = request.args.get('limit', type=int)
         ingredients = IngredientService.get_ingredients_by_category(category_id, limit=limit)
@@ -117,14 +189,46 @@ def get_ingredients_by_category(category_id):
 def create_ingredient():
     """
     Create a new ingredient
-    
-    JSON Body:
-        name (required): Ingredient name
-        icon (required): Emoji icon
-        category_id (required): Category UUID
-        image_url (optional): Image URL
-        is_popular (optional): Boolean, default false
-        aliases (optional): List of alternative names
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - name
+            - icon
+            - category_id
+          properties:
+            name:
+              type: string
+              example: "Tomato"
+            icon:
+              type: string
+              example: "🍅"
+            category_id:
+              type: string
+              description: Category UUID
+              example: "550e8400-e29b-41d4-a716-446655440000"
+            image_url:
+              type: string
+              example: "https://example.com/tomato.jpg"
+            is_popular:
+              type: boolean
+              default: false
+            aliases:
+              type: array
+              items:
+                type: string
+              example: ["Tomatoes", "Cherry tomato"]
+    responses:
+      201:
+        description: Ingredient created successfully
+      400:
+        description: Invalid input or missing required fields
     """
     try:
         data = request.get_json()
@@ -164,14 +268,44 @@ def create_ingredient():
 def update_ingredient(ingredient_id):
     """
     Update an ingredient
-    
-    JSON Body:
-        name (optional): Ingredient name
-        icon (optional): Emoji icon
-        category_id (optional): Category UUID
-        image_url (optional): Image URL
-        is_popular (optional): Boolean
-        aliases (optional): List of alternative names
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: ingredient_id
+        in: path
+        type: string
+        required: true
+        description: Ingredient UUID
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Tomato"
+            icon:
+              type: string
+              example: "🍅"
+            category_id:
+              type: string
+              description: Category UUID
+            image_url:
+              type: string
+            is_popular:
+              type: boolean
+            aliases:
+              type: array
+              items:
+                type: string
+    responses:
+      200:
+        description: Ingredient updated successfully
+      400:
+        description: Invalid input
+      404:
+        description: Ingredient not found
     """
     try:
         data = request.get_json()
@@ -195,7 +329,23 @@ def update_ingredient(ingredient_id):
 @ingredient_bp.route('/<ingredient_id>', methods=['DELETE'])
 @handle_api_error
 def delete_ingredient(ingredient_id):
-    """Delete an ingredient"""
+    """
+    Delete an ingredient
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: ingredient_id
+        in: path
+        type: string
+        required: true
+        description: Ingredient UUID
+    responses:
+      200:
+        description: Ingredient deleted successfully
+      404:
+        description: Ingredient not found
+    """
     try:
         result = IngredientService.delete_ingredient(ingredient_id)
         
@@ -215,15 +365,44 @@ def delete_ingredient(ingredient_id):
 def bulk_create_ingredients():
     """
     Create multiple ingredients at once
-    
-    JSON Body:
-        Array of ingredient objects with fields:
-            name (required): Ingredient name
-            icon (required): Emoji icon
-            category_id (required): Category UUID
-            image_url (optional): Image URL
-            is_popular (optional): Boolean
-            aliases (optional): List of alternative names
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - icon
+              - category_id
+            properties:
+              name:
+                type: string
+                example: "Tomato"
+              icon:
+                type: string
+                example: "🍅"
+              category_id:
+                type: string
+                description: Category UUID
+              image_url:
+                type: string
+              is_popular:
+                type: boolean
+              aliases:
+                type: array
+                items:
+                  type: string
+    responses:
+      201:
+        description: Ingredients created successfully
+      400:
+        description: Invalid input or empty array
     """
     try:
         data = request.get_json()
@@ -255,7 +434,15 @@ def bulk_create_ingredients():
 @category_bp.route('', methods=['GET'])
 @handle_api_error
 def list_categories():
-    """Get all ingredient categories"""
+    """
+    Get all ingredient categories
+    ---
+    tags:
+      - Categories
+    responses:
+      200:
+        description: List of all ingredient categories
+    """
     try:
         categories = IngredientCategoryService.get_all_categories()
         
@@ -271,7 +458,23 @@ def list_categories():
 @category_bp.route('/<category_id>', methods=['GET'])
 @handle_api_error
 def get_category(category_id):
-    """Get a single category by ID"""
+    """
+    Get a single category by ID
+    ---
+    tags:
+      - Categories
+    parameters:
+      - name: category_id
+        in: path
+        type: string
+        required: true
+        description: Category UUID
+    responses:
+      200:
+        description: Category details
+      404:
+        description: Category not found
+    """
     try:
         category = IngredientCategoryService.get_category_by_id(category_id)
         
@@ -287,7 +490,23 @@ def get_category(category_id):
 @category_bp.route('/slug/<slug>', methods=['GET'])
 @handle_api_error
 def get_category_by_slug(slug):
-    """Get a category by slug"""
+    """
+    Get a category by slug
+    ---
+    tags:
+      - Categories
+    parameters:
+      - name: slug
+        in: path
+        type: string
+        required: true
+        description: Category slug (e.g., 'protein', 'vegetable')
+    responses:
+      200:
+        description: Category details
+      404:
+        description: Category not found
+    """
     try:
         category = IngredientCategoryService.get_category_by_slug(slug)
         
@@ -305,12 +524,38 @@ def get_category_by_slug(slug):
 def create_category():
     """
     Create a new category
-    
-    JSON Body:
-        slug (required): Unique slug (e.g., 'protein', 'vegetable')
-        name (required): Category name
-        icon (optional): Emoji icon
-        sort_order (optional): Display order, default 0
+    ---
+    tags:
+      - Categories
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - slug
+            - name
+          properties:
+            slug:
+              type: string
+              description: Unique slug (e.g., 'protein', 'vegetable')
+              example: "protein"
+            name:
+              type: string
+              example: "Protein"
+            icon:
+              type: string
+              example: "🍗"
+            sort_order:
+              type: integer
+              default: 0
+              example: 1
+    responses:
+      201:
+        description: Category created successfully
+      400:
+        description: Invalid input or missing required fields
     """
     try:
         data = request.get_json()
@@ -348,12 +593,39 @@ def create_category():
 def update_category(category_id):
     """
     Update a category
-    
-    JSON Body:
-        slug (optional): Unique slug
-        name (optional): Category name
-        icon (optional): Emoji icon
-        sort_order (optional): Display order
+    ---
+    tags:
+      - Categories
+    parameters:
+      - name: category_id
+        in: path
+        type: string
+        required: true
+        description: Category UUID
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            slug:
+              type: string
+              example: "protein"
+            name:
+              type: string
+              example: "Protein"
+            icon:
+              type: string
+              example: "🍗"
+            sort_order:
+              type: integer
+              example: 1
+    responses:
+      200:
+        description: Category updated successfully
+      400:
+        description: Invalid input
+      404:
+        description: Category not found
     """
     try:
         data = request.get_json()
@@ -377,7 +649,23 @@ def update_category(category_id):
 @category_bp.route('/<category_id>', methods=['DELETE'])
 @handle_api_error
 def delete_category(category_id):
-    """Delete a category"""
+    """
+    Delete a category
+    ---
+    tags:
+      - Categories
+    parameters:
+      - name: category_id
+        in: path
+        type: string
+        required: true
+        description: Category UUID
+    responses:
+      200:
+        description: Category deleted successfully
+      404:
+        description: Category not found
+    """
     try:
         result = IngredientCategoryService.delete_category(category_id)
         

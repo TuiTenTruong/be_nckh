@@ -43,6 +43,17 @@ class Ingredient(db.Model):
     aliases = db.Column(db.JSON)  # List of alternative names
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Relationships
+    recipe_ingredients = db.relationship('RecipeIngredient', back_populates='ingredient', lazy='dynamic')
+    recipes = db.relationship(
+        'Recipe',
+        secondary='recipe_ingredients',
+        primaryjoin='Ingredient.id == RecipeIngredient.ingredient_id',
+        secondaryjoin='Recipe.id == RecipeIngredient.recipe_id',
+        viewonly=True,
+        lazy='dynamic'
+    )
+
     def to_dict(self, include_category=True):
         """Convert to dictionary"""
         data = {
