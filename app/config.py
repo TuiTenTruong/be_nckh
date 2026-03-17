@@ -19,7 +19,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'mysql+pymysql://root:@localhost:3306/nckh'
+        'mysql+pymysql://root:161104@localhost:3306/nckh'
     )
     SQLALCHEMY_ECHO = True
 

@@ -6,6 +6,7 @@ from app.api.ingredient_routes import ingredient_bp, category_bp
 from app.api.recipe_routes import recipe_bp
 from app.api.scan_routes import scan_bp
 from app.api.pantry_routes import pantry_bp
+from app.api.chat_routes import chat_bp
 from app.errors.handlers import register_error_handlers
 
 
@@ -70,6 +71,10 @@ def create_app(config_name='development'):
             {
                 "name": "Pantry",
                 "description": "User pantry endpoints"
+            },
+            {
+                "name": "Chat",
+                "description": "Mock chat endpoints for frontend integration"
             }
         ]
     }
@@ -87,6 +92,7 @@ def create_app(config_name='development'):
     app.register_blueprint(recipe_bp)
     app.register_blueprint(scan_bp)
     app.register_blueprint(pantry_bp)
+    app.register_blueprint(chat_bp)
     
     # Register error handlers
     register_error_handlers(app)
