@@ -4,6 +4,7 @@ import json
 import os
 from urllib import request as urlrequest
 from urllib import error as urlerror
+from flask import current_app
 
 
 class VisionService:
@@ -11,16 +12,17 @@ class VisionService:
 
     @staticmethod
     def detect_ingredients(image_bytes, filename):
-        """Call external Vision API and return detections"""
-        endpoint = os.getenv('VISION_API_ENDPOINT')
-        api_key = os.getenv('VISION_API_KEY')
-        provider = os.getenv('VISION_API_PROVIDER', 'mock')
+        """Call external service-demo API and return detections"""
+        endpoint = (
+            current_app.config.get('SERVICE_DEMO_ENDPOINT')
+            or os.getenv('SERVICE_DEMO_ENDPOINT')
+            or os.getenv('VISION_API_ENDPOINT')
+        )
+        api_key = os.getenv('SERVICE_DEMO_API_KEY') or os.getenv('VISION_API_KEY')
+        provider = os.getenv('VISION_API_PROVIDER', 'service_demo')
 
         if not endpoint:
-            return [
-                {'name': 'ca chua', 'confidence': 0.93},
-                {'name': 'hanh tay', 'confidence': 0.84}
-            ], 'mock'
+            raise RuntimeError('SERVICE_DEMO_ENDPOINT is required')
 
         payload = {
             'provider': provider,
@@ -43,7 +45,12 @@ class VisionService:
                 raw = response.read().decode('utf-8')
                 parsed = json.loads(raw)
 
-            detections = parsed.get('ingredients') or parsed.get('predictions') or []
+            data = parsed.get('data') if isinstance(parsed, dict) else None
+            if isinstance(data, dict):
+                detections = data.get('ingredients') or data.get('predictions') or []
+            else:
+                detections = parsed.get('ingredients') or parsed.get('predictions') or []
+
             normalized = []
             for item in detections:
                 if isinstance(item, str):
@@ -56,5 +63,9 @@ class VisionService:
 
             return [d for d in normalized if d.get('name')], provider
 
-        except (urlerror.HTTPError, urlerror.URLError, TimeoutError, ValueError):
-            return [], provider
+        except urlerror.HTTPError as exc:
+            raise RuntimeError(f'Service demo HTTP error: {exc.code}') from exc
+        except (urlerror.URLError, TimeoutError) as exc:
+            raise RuntimeError('Service demo connection failed') from exc
+        except ValueError as exc:
+            raise RuntimeError('Service demo returned invalid JSON') from exc

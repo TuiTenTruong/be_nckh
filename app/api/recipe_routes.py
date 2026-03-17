@@ -116,6 +116,34 @@ def get_recipe(recipe_id):
     return success_response(data=recipe, message='Recipe retrieved successfully')
 
 
+@recipe_bp.route('/random', methods=['GET'])
+@handle_api_error
+def get_random_recipes():
+    """
+    Get random recipes
+    ---
+    tags:
+      - Recipes
+    parameters:
+      - name: limit
+        in: query
+        type: integer
+        default: 4
+        description: Maximum number of recipes to return
+    responses:
+      200:
+        description: Random recipes list
+      400:
+        description: Invalid parameters
+    """
+    limit = request.args.get('limit', 4, type=int)
+    if limit < 1 or limit > 100:
+        limit = 4
+
+    recipes = RecipeService.get_random_recipes(limit=limit)
+    return success_response(data=recipes, message='Random recipes retrieved successfully')
+
+
 @recipe_bp.route('', methods=['POST'])
 @handle_api_error
 def create_recipe():

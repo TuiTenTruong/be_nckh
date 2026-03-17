@@ -36,6 +36,12 @@ class RecipeService:
         return [recipe.to_dict() for recipe in recipes], total
 
     @staticmethod
+    def get_random_recipes(limit=4):
+        """Get random recipes from database"""
+        recipes = Recipe.query.order_by(db.func.rand()).limit(limit).all()
+        return [recipe.to_dict() for recipe in recipes]
+
+    @staticmethod
     def get_recipe_by_id(recipe_id, include_ingredients=True, include_steps=True):
         """Get a recipe by ID"""
         recipe = Recipe.query.get(recipe_id)

@@ -147,6 +147,51 @@ def get_popular_ingredients():
         return error_response(str(e), 400)
 
 
+@ingredient_bp.route('/random', methods=['GET'])
+@handle_api_error
+def get_random_ingredients():
+    """
+    Get random ingredients
+    ---
+    tags:
+      - Ingredients
+    parameters:
+      - name: limit
+        in: query
+        type: integer
+        default: 10
+        description: Maximum number of ingredients to return
+      - name: category_id
+        in: query
+        type: string
+        description: Optional category UUID filter
+    responses:
+      200:
+        description: Random ingredients list
+      400:
+        description: Invalid parameters
+    """
+    try:
+        limit = request.args.get('limit', 10, type=int)
+        category_id = request.args.get('category_id', type=str)
+
+        if limit < 1 or limit > 100:
+            limit = 10
+
+        ingredients = IngredientService.get_random_ingredients(
+            limit=limit,
+            category_id=category_id,
+        )
+
+        return success_response(
+            data=ingredients,
+            message='Random ingredients retrieved successfully'
+        )
+
+    except Exception as e:
+        return error_response(str(e), 400)
+
+
 @ingredient_bp.route('/category/<category_id>', methods=['GET'])
 @handle_api_error
 def get_ingredients_by_category(category_id):

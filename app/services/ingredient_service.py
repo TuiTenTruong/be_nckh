@@ -81,6 +81,17 @@ class IngredientService:
         return [ing.to_dict() for ing in ingredients]
 
     @staticmethod
+    def get_random_ingredients(limit=10, category_id=None):
+        """Get random ingredients from database"""
+        query = Ingredient.query
+
+        if category_id:
+            query = query.filter_by(category_id=category_id)
+
+        ingredients = query.order_by(db.func.rand()).limit(limit).all()
+        return [ing.to_dict() for ing in ingredients]
+
+    @staticmethod
     def get_ingredients_by_category(category_id, limit=None):
         """
         Get ingredients by category

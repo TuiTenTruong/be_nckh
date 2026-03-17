@@ -24,37 +24,37 @@ def seed_categories():
             },
             {
                 'slug': 'vegetable',
-                'name': 'Rau cu',
+                'name': 'Rau củ',
                 'icon': '🥬',
                 'sort_order': 2
             },
             {
                 'slug': 'spice',
-                'name': 'Gia vi',
+                'name': 'Gia vị',
                 'icon': '🧄',
                 'sort_order': 3
             },
             {
                 'slug': 'grain',
-                'name': 'Ngu coc',
+                'name': 'Ngũ cốc',
                 'icon': '🌾',
                 'sort_order': 4
             },
             {
                 'slug': 'seafood',
-                'name': 'Hai san',
+                'name': 'Hải sản',
                 'icon': '🦐',
                 'sort_order': 5
             },
             {
                 'slug': 'dairy',
-                'name': 'Sua & Trung',
+                'name': 'Sữa & Trứng',
                 'icon': '🥚',
                 'sort_order': 6
             },
             {
                 'slug': 'sauce',
-                'name': 'Nuoc cham & Sot',
+                'name': 'Nước chấm & Sốt',
                 'icon': '🫙',
                 'sort_order': 7
             },

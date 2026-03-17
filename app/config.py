@@ -5,7 +5,12 @@ class Config:
     """Base configuration"""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
-    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'mock')
+    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'service_demo')
+    SERVICE_DEMO_ENDPOINT = os.getenv(
+        'SERVICE_DEMO_ENDPOINT',
+        'http://127.0.0.1:5055/mock/scan'
+    )
+    SERVICE_DEMO_API_KEY = os.getenv('SERVICE_DEMO_API_KEY')
     VISION_API_ENDPOINT = os.getenv('VISION_API_ENDPOINT')
     VISION_API_KEY = os.getenv('VISION_API_KEY')
 

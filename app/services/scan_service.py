@@ -1,5 +1,6 @@
 """Scan service - Business logic"""
 import uuid
+import unicodedata
 from app.extensions import db
 from app.models.ingredient import Ingredient
 from app.models.scan import ScanSession
@@ -38,7 +39,9 @@ class ScanService:
     @staticmethod
     def _normalize_name(name):
         """Normalize ingredient name for matching"""
-        return ' '.join((name or '').strip().lower().split())
+        normalized = unicodedata.normalize('NFD', (name or '').strip().lower())
+        without_accents = ''.join(ch for ch in normalized if unicodedata.category(ch) != 'Mn')
+        return ' '.join(without_accents.split())
 
     @staticmethod
     def _build_ingredient_lookup():
@@ -47,7 +50,7 @@ class ScanService:
         ingredients = Ingredient.query.all()
 
         for ingredient in ingredients:
-            ingredient_data = ingredient.to_dict(include_category=False)
+            ingredient_data = ingredient.to_dict(include_category=True)
 
             names = [ingredient.name]
             if ingredient.aliases and isinstance(ingredient.aliases, list):
