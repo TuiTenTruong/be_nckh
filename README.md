@@ -82,7 +82,7 @@ python run.py
 Mac dinh service demo chay tai: `http://127.0.0.1:5055`
 
 ## 7) API nhanh de test
-
+- API Swagger: http://localhost:5000/swagger/#/
 - Health: `GET /health`
 - Ingredients: `GET /api/ingredients`
 - Recipes: `GET /api/recipes`
