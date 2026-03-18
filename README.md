@@ -42,13 +42,7 @@ Ghi chu:
 
 1. Tao database `nckh` tren MySQL/MariaDB.
 2. Import schema + seed co ban tu [be_nckh/database.sql](be_nckh/database.sql).
-3. (Tuy chon) bo sung recipe/ingredient moi tu file import:
 
-```bash
-# trong mysql client
-source be_nckh/sql/import_recipes_from_data.sql;
-source be_nckh/sql/update_recipe_images_from_source.sql;
-```
 
 ## 5) Chay backend
 
