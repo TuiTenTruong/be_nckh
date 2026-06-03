@@ -1,5 +1,8 @@
 """Flask application factory"""
+import os
+
 from flask import Flask
+from dotenv import load_dotenv
 from app.extensions import db, cors, swagger
 from app.config import config
 from app.api.ingredient_routes import ingredient_bp, category_bp
@@ -7,11 +10,16 @@ from app.api.recipe_routes import recipe_bp
 from app.api.scan_routes import scan_bp
 from app.api.pantry_routes import pantry_bp
 from app.api.chat_routes import chat_bp
+from app.api.recipe_suggestion_routes import recipe_suggestion_bp
 from app.errors.handlers import register_error_handlers
 
 
 def create_app(config_name='development'):
     """Create and configure Flask application"""
+    # Load environment variables from be/.env for local development.
+    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv(env_path)
+
     app = Flask(__name__)
     
     # Load configuration
@@ -75,6 +83,10 @@ def create_app(config_name='development'):
             {
                 "name": "Chat",
                 "description": "Mock chat endpoints for frontend integration"
+            },
+            {
+                "name": "Recipe Suggestion",
+                "description": "AI-powered recipe suggestion endpoints"
             }
         ]
     }
@@ -93,6 +105,7 @@ def create_app(config_name='development'):
     app.register_blueprint(scan_bp)
     app.register_blueprint(pantry_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(recipe_suggestion_bp)
     
     # Register error handlers
     register_error_handlers(app)

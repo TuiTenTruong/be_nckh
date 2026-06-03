@@ -5,11 +5,25 @@ class Config:
     """Base configuration"""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
-    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'service_demo')
-    SERVICE_DEMO_ENDPOINT = os.getenv(
-        'SERVICE_DEMO_ENDPOINT',
-        'http://127.0.0.1:5055/mock/scan'
+    
+    # AI Service (food-ai-service) Configuration
+    AI_SERVICE_ENDPOINT = os.getenv(
+        'AI_SERVICE_ENDPOINT',
+        'http://127.0.0.1:8000/api/ai/analyze-image'
     )
+    
+    # AI Service Base URL for recipe suggestion
+    AI_SERVICE_BASE_URL = os.getenv(
+        'AI_SERVICE_BASE_URL',
+        'http://127.0.0.1:8000'
+    )
+    
+    # AI Service Timeout (seconds)
+    AI_SERVICE_TIMEOUT = int(os.getenv('AI_SERVICE_TIMEOUT', 30))
+    
+    # Legacy config (kept for backward compatibility)
+    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'food_ai_service')
+    SERVICE_DEMO_ENDPOINT = os.getenv('SERVICE_DEMO_ENDPOINT')
     SERVICE_DEMO_API_KEY = os.getenv('SERVICE_DEMO_API_KEY')
     VISION_API_ENDPOINT = os.getenv('VISION_API_ENDPOINT')
     VISION_API_KEY = os.getenv('VISION_API_KEY')
@@ -19,7 +33,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'mysql+pymysql://root:@localhost:3306/nckh'
+        'mysql+pymysql://root:161104@localhost:3306/nckh'
     )
     SQLALCHEMY_ECHO = True
 
