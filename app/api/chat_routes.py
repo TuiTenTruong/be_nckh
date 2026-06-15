@@ -1,4 +1,4 @@
-"""Mock Chat API routes"""
+"""Chat API routes - RAG-powered chat with AI assistant"""
 from flask import Blueprint, request
 from app.services.chat_service import ChatService
 from app.utils.response import success_response, error_response, handle_api_error
@@ -77,7 +77,7 @@ def get_chat_messages(session_id):
 @handle_api_error
 def send_chat_message(session_id):
     """
-    Send a message and get a simulated assistant reply
+    Send a message and get AI assistant reply using RAG
     ---
     tags:
       - Chat
@@ -97,7 +97,13 @@ def send_chat_message(session_id):
           properties:
             content:
               type: string
-              example: "Hello, suggest me a quick recipe"
+              example: "Tôi có trứng và cà chua, nấu gì được?"
+            user_pantry:
+              type: array
+              items:
+                type: string
+              example: ["trứng", "cà chua", "hành lá"]
+              description: "Nguyên liệu người dùng hiện có (optional)"
     responses:
       200:
         description: User and assistant messages returned
@@ -110,7 +116,11 @@ def send_chat_message(session_id):
     if 'content' not in data:
         return error_response('Missing required field: content', 400)
 
-    payload = ChatService.send_message(session_id=session_id, content=data.get('content'))
+    payload = ChatService.send_message(
+        session_id=session_id, 
+        content=data.get('content'),
+        user_pantry=data.get('user_pantry')
+    )
     return success_response(data=payload, message='Message sent successfully')
 
 

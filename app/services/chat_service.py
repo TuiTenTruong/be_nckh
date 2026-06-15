@@ -1,17 +1,99 @@
-"""Mock chat service for frontend integration before real AI API is available."""
+"""Chat service - Calls food-ai-service for RAG-based chat"""
+import os
+import json
 import uuid
+from io import BytesIO
 from datetime import datetime, timezone
+from urllib import request as urlrequest
+from urllib import error as urlerror
+from flask import current_app
+
+from app.models.recipe import Recipe
 
 
 class ChatService:
-    """In-memory chat service used to simulate assistant conversations."""
+    """Service for AI-powered chat using food-ai-service microservice."""
 
+    # In-memory session storage for BE
+    # Maps session_id -> { id, title, created_at, updated_at, messages }
     _sessions = {}
 
+    @staticmethod
+    def _get_ai_endpoint():
+        """Get AI service chat endpoint"""
+        analyze_endpoint = (
+            current_app.config.get('AI_SERVICE_ENDPOINT')
+            or os.getenv('AI_SERVICE_ENDPOINT')
+        )
+
+        if analyze_endpoint:
+            return analyze_endpoint.replace('/analyze-image', '/chat')
+
+        base_url = (
+            current_app.config.get('AI_SERVICE_BASE_URL')
+            or os.getenv('AI_SERVICE_BASE_URL')
+            or 'http://127.0.0.1:8000'
+        ).rstrip('/')
+
+        if base_url.endswith('/api/ai'):
+            return f"{base_url}/chat"
+        if base_url.endswith('/api/ai/chat'):
+            return base_url
+        return f"{base_url}/api/ai/chat"
+    
     @staticmethod
     def _now_iso():
         """Return UTC timestamp in ISO8601 format."""
         return datetime.now(timezone.utc).isoformat()
+
+    @staticmethod
+    def _get_recipes_for_context():
+        """Get all recipes from database for RAG context"""
+        try:
+            recipes = Recipe.query.all()
+            result = []
+            for recipe in recipes:
+                # Get ingredients through recipe_ingredients relationship
+                ingredients = []
+                for ri in recipe.recipe_ingredients:
+                    if ri.ingredient:
+                        ingredients.append({
+                            "name": ri.ingredient.name,
+                            "amount": ri.amount or ''
+                        })
+                
+                # Get steps as text
+                steps_text = ""
+                try:
+                    steps_list = []
+                    for step in recipe.steps.order_by('step_number'):
+                        step_title = f"**{step.title}**" if step.title else ""
+                        step_content = f"Bước {step.step_number}: {step_title} {step.description}"
+                        if step.tip:
+                            step_content += f" (Mẹo: {step.tip})"
+                        steps_list.append(step_content)
+                    steps_text = "\n".join(steps_list)
+                except Exception:
+                    steps_text = ""
+                
+                result.append({
+                    "id": str(recipe.id),
+                    "name": recipe.name,
+                    "description": recipe.description or '',
+                    "steps": steps_text,
+                    "ingredients": ingredients,
+                    "image_url": recipe.image_url,
+                    "cook_time_minutes": recipe.cook_time_minutes,
+                    "difficulty": recipe.difficulty,
+                    "servings": recipe.servings
+                })
+            
+            return result
+        except Exception as e:
+            print(f" [ChatService] Error getting recipes: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
 
     @classmethod
     def create_session(cls, title=None):
@@ -21,7 +103,7 @@ class ChatService:
 
         session = {
             'id': session_id,
-            'title': title or 'New chat',
+            'title': title or 'Cuộc trò chuyện mới',
             'created_at': now,
             'updated_at': now,
             'messages': []
@@ -64,8 +146,11 @@ class ChatService:
         return session['messages']
 
     @classmethod
-    def send_message(cls, session_id, content):
-        """Append user message and generate a simulated assistant reply."""
+    def send_message(cls, session_id, content, user_pantry=None):
+        """
+        Send user message to AI service and get response.
+        Uses RAG to find relevant recipes.
+        """
         session = cls.get_session(session_id)
         if not session:
             raise ValueError(f"Chat session '{session_id}' not found")
@@ -75,6 +160,7 @@ class ChatService:
 
         now = cls._now_iso()
 
+        # Add user message locally first
         user_message = {
             'id': str(uuid.uuid4()),
             'role': 'user',
@@ -83,10 +169,25 @@ class ChatService:
         }
         session['messages'].append(user_message)
 
+        # Call AI service
+        try:
+            assistant_content = cls._call_ai_chat(
+                session_id=session_id,
+                message=content.strip(),
+                user_pantry=user_pantry
+            )
+        except Exception as e:
+            print(f" [ChatService] AI call failed: {e}")
+            # Fallback response
+            assistant_content = (
+                "Xin lỗi, tôi đang gặp sự cố kết nối với AI service. "
+                "Vui lòng thử lại sau hoặc kiểm tra xem AI service đã chạy chưa."
+            )
+
         assistant_message = {
             'id': str(uuid.uuid4()),
             'role': 'assistant',
-            'content': cls._build_mock_reply(content.strip()),
+            'content': assistant_content,
             'created_at': cls._now_iso()
         }
         session['messages'].append(assistant_message)
@@ -99,6 +200,82 @@ class ChatService:
             'user_message': user_message,
             'assistant_message': assistant_message
         }
+
+    @classmethod
+    def _call_ai_chat(cls, session_id, message, user_pantry=None):
+        """
+        Call food-ai-service chat endpoint
+        """
+        endpoint = f"{cls._get_ai_endpoint()}/sessions/{session_id}/messages"
+        
+        # Get recipes for RAG context
+        recipes = cls._get_recipes_for_context()
+        
+        # Build request payload
+        payload = {
+            "message": message,
+            "recipes": recipes,
+            "user_pantry": user_pantry or []
+        }
+        
+        req = urlrequest.Request(
+            endpoint,
+            data=json.dumps(payload).encode('utf-8'),
+            method='POST',
+            headers={
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        try:
+            with urlrequest.urlopen(req, timeout=60) as response:
+                raw = response.read().decode('utf-8')
+                parsed = json.loads(raw)
+            
+            if parsed.get('success'):
+                data = parsed.get('data', {})
+                assistant_msg = data.get('assistant_message', {})
+                return assistant_msg.get('content', 'Không có phản hồi từ AI')
+            else:
+                raise RuntimeError(parsed.get('message', 'AI service error'))
+        
+        except urlerror.HTTPError as exc:
+            # If session doesn't exist on AI service, create it first
+            if exc.code == 404:
+                cls._ensure_ai_session(session_id)
+                # Retry
+                with urlrequest.urlopen(req, timeout=60) as response:
+                    raw = response.read().decode('utf-8')
+                    parsed = json.loads(raw)
+                
+                if parsed.get('success'):
+                    data = parsed.get('data', {})
+                    assistant_msg = data.get('assistant_message', {})
+                    return assistant_msg.get('content', 'Không có phản hồi từ AI')
+            
+            raise RuntimeError(f'AI Service HTTP error: {exc.code}')
+        except (urlerror.URLError, TimeoutError) as exc:
+            raise RuntimeError(f'AI Service connection failed: {exc}')
+    
+    @classmethod
+    def _ensure_ai_session(cls, session_id):
+        """Create session on AI service if it doesn't exist"""
+        endpoint = f"{cls._get_ai_endpoint()}/sessions"
+        
+        payload = {"title": cls._sessions.get(session_id, {}).get('title', 'Chat')}
+        
+        req = urlrequest.Request(
+            endpoint,
+            data=json.dumps(payload).encode('utf-8'),
+            method='POST',
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        try:
+            with urlrequest.urlopen(req, timeout=10) as response:
+                response.read()
+        except Exception:
+            pass  # Ignore errors, we'll handle them in the main call
 
     @staticmethod
     def _serialize_session(session):
@@ -114,7 +291,7 @@ class ChatService:
     @staticmethod
     def _auto_update_title(session):
         """Set title from first user message when using default title."""
-        if session['title'] != 'New chat':
+        if session['title'] != 'Cuộc trò chuyện mới':
             return
 
         for message in session['messages']:
@@ -122,25 +299,3 @@ class ChatService:
                 truncated = message['content'][:40]
                 session['title'] = truncated + ('...' if len(message['content']) > 40 else '')
                 return
-
-    @staticmethod
-    def _build_mock_reply(content):
-        """Create a deterministic fake assistant response for UI testing."""
-        lowered = content.lower()
-
-        if any(keyword in lowered for keyword in ['hello', 'hi', 'xin chao', 'chao']):
-            return 'Xin chao! Toi la chatbot mock. Ban cu tiep tuc chat de FE test giao dien nhe.'
-
-        if any(keyword in lowered for keyword in ['recipe', 'cong thuc', 'nau an']):
-            return (
-                'Goi y mock: Ban co the thu mon ga nuong mat ong. '
-                'Buoc 1 uop ga 20 phut, buoc 2 nuong 25 phut o 200C.'
-            )
-
-        if any(keyword in lowered for keyword in ['ingredient', 'nguyen lieu', 'pantry']):
-            return 'Mock response: Toi co the giup ban quan ly nguyen lieu va goi y mon tu pantry hien co.'
-
-        return (
-            'Day la phan hoi gia lap tu chat API. '
-            'Ban co the dung response nay de test bubble chat, timestamp, va loading state.'
-        )
