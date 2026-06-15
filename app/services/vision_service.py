@@ -12,32 +12,58 @@ class VisionService:
 
     @staticmethod
     def detect_ingredients(image_bytes, filename):
-        """Call external service-demo API and return detections"""
-        endpoint = (
-            current_app.config.get('SERVICE_DEMO_ENDPOINT')
-            or os.getenv('SERVICE_DEMO_ENDPOINT')
-            or os.getenv('VISION_API_ENDPOINT')
-        )
+        """Call external vision API and return detections"""
+        provider = os.getenv('VISION_API_PROVIDER') or current_app.config.get('VISION_API_PROVIDER') or 'food-ai-service'
+
+        if provider == 'food-ai-service':
+            endpoint = (
+                os.getenv('VISION_API_ENDPOINT')
+                or current_app.config.get('VISION_API_ENDPOINT')
+                or 'http://127.0.0.1:8000/api/ai/analyze-image'
+            )
+        else:
+            endpoint = (
+                current_app.config.get('SERVICE_DEMO_ENDPOINT')
+                or os.getenv('SERVICE_DEMO_ENDPOINT')
+                or os.getenv('VISION_API_ENDPOINT')
+            )
+
         api_key = os.getenv('SERVICE_DEMO_API_KEY') or os.getenv('VISION_API_KEY')
-        provider = os.getenv('VISION_API_PROVIDER', 'service_demo')
 
         if not endpoint:
-            raise RuntimeError('SERVICE_DEMO_ENDPOINT is required')
+            raise RuntimeError(f'{provider.upper()}_ENDPOINT is required')
 
-        payload = {
-            'provider': provider,
-            'filename': filename,
-            'image_base64': base64.b64encode(image_bytes).decode('utf-8')
-        }
+        if provider == 'food-ai-service':
+            # Multipart form-data for food-ai-service
+            boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+            body = (
+                f'--{boundary}\r\n'
+                f'Content-Disposition: form-data; name="image"; filename="{filename}"\r\n'
+                f'Content-Type: image/jpeg\r\n\r\n'
+            ).encode('utf-8') + image_bytes + f'\r\n--{boundary}--\r\n'.encode('utf-8')
 
-        req = urlrequest.Request(
-            endpoint,
-            data=json.dumps(payload).encode('utf-8'),
-            method='POST',
-            headers={
+            headers = {
+                'Content-Type': f'multipart/form-data; boundary={boundary}',
+                'Authorization': f'Bearer {api_key}' if api_key else ''
+            }
+        else:
+            # JSON format for service_demo
+            payload = {
+                'provider': provider,
+                'filename': filename,
+                'image_base64': base64.b64encode(image_bytes).decode('utf-8')
+            }
+            body = json.dumps(payload).encode('utf-8')
+            headers = {
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}' if api_key else ''
             }
+
+        req = urlrequest.Request(
+            endpoint,
+            data=body,
+            method='POST',
+            headers=headers
         )
 
         try:
@@ -64,8 +90,8 @@ class VisionService:
             return [d for d in normalized if d.get('name')], provider
 
         except urlerror.HTTPError as exc:
-            raise RuntimeError(f'Service demo HTTP error: {exc.code}') from exc
+            raise RuntimeError(f'{provider} HTTP error: {exc.code}') from exc
         except (urlerror.URLError, TimeoutError) as exc:
-            raise RuntimeError('Service demo connection failed') from exc
+            raise RuntimeError(f'{provider} connection failed') from exc
         except ValueError as exc:
-            raise RuntimeError('Service demo returned invalid JSON') from exc
+            raise RuntimeError(f'{provider} returned invalid JSON') from exc

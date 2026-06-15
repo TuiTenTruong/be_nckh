@@ -5,13 +5,13 @@ class Config:
     """Base configuration"""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
-    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'service_demo')
+    VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'food-ai-service')
     SERVICE_DEMO_ENDPOINT = os.getenv(
         'SERVICE_DEMO_ENDPOINT',
         'http://127.0.0.1:5055/mock/scan'
     )
     SERVICE_DEMO_API_KEY = os.getenv('SERVICE_DEMO_API_KEY')
-    VISION_API_ENDPOINT = os.getenv('VISION_API_ENDPOINT')
+    VISION_API_ENDPOINT = os.getenv('VISION_API_ENDPOINT', 'http://127.0.0.1:8000/api/ai/analyze-image')
     VISION_API_KEY = os.getenv('VISION_API_KEY')
 
 class DevelopmentConfig(Config):
