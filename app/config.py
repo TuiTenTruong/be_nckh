@@ -6,20 +6,23 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
     
-    # AI Service (food-ai-service) Configuration
-    AI_SERVICE_ENDPOINT = os.getenv(
-        'AI_SERVICE_ENDPOINT',
-        'http://127.0.0.1:8000/api/ai/analyze-image'
-    )
-    
-    # AI Service Base URL for recipe suggestion
+    # AI Service Base URL for recipe suggestion and chat
     AI_SERVICE_BASE_URL = os.getenv(
         'AI_SERVICE_BASE_URL',
         'http://127.0.0.1:8000'
     )
+
+    # AI Service (food-ai-service) Endpoint for vision analysis
+    AI_SERVICE_ENDPOINT = os.getenv(
+        'AI_SERVICE_ENDPOINT',
+        f"{os.getenv('AI_SERVICE_BASE_URL', 'http://127.0.0.1:8000').rstrip('/')}/api/ai/analyze-image"
+    )
     
     # AI Service Timeout (seconds)
     AI_SERVICE_TIMEOUT = int(os.getenv('AI_SERVICE_TIMEOUT', 30))
+
+    # Public URL for resolving relative image paths in API responses
+    API_PUBLIC_URL = os.getenv('API_PUBLIC_URL', 'http://127.0.0.1:5000')
     
     # Legacy config (kept for backward compatibility)
     VISION_API_PROVIDER = os.getenv('VISION_API_PROVIDER', 'food_ai_service')

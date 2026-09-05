@@ -1,5 +1,7 @@
 """DTO - Transform ORM objects thành JSON payload cho AI service"""
 
+from app.utils.media_url import resolve_image_url
+
 
 class AIServiceDTO:
     """Transform data để gửi sang AI service"""
@@ -18,7 +20,7 @@ class AIServiceDTO:
                 "name": "...",
                 "description": "...",
                 "steps": "...",  # Combined steps thành string
-                "ingredients": [{"name": "...", "amount": "..."}],
+                "ingredients": [{"name": "...", "quantity": "...", "unit": "..."}],
                 "image_url": "...",
                 "cook_time_minutes": 30,
                 "difficulty": "...",
@@ -31,7 +33,8 @@ class AIServiceDTO:
             if recipe_ingredient.ingredient:
                 ingredients_list.append({
                     "name": str(recipe_ingredient.ingredient.name or "").strip(),
-                    "amount": str(recipe_ingredient.amount or "").strip() or None
+                    "quantity": str(recipe_ingredient.quantity or "").strip(),
+                    "unit": str(recipe_ingredient.unit or "").strip(),
                 })
         
         # Lấy steps và combine thành string
@@ -49,7 +52,7 @@ class AIServiceDTO:
             "description": recipe.description,
             "steps": steps_text.strip(),
             "ingredients": ingredients_list,
-            "image_url": recipe.image_url,
+            "image_url": resolve_image_url(recipe.image_url, name=recipe.name),
             "cook_time_minutes": recipe.cook_time_minutes,
             "difficulty": recipe.difficulty,
             "servings": recipe.servings,
@@ -88,7 +91,7 @@ class AIServiceDTO:
                         "name": "...",
                         "description": "...",
                         "steps": "...",
-                        "ingredients": [{"name": "...", "amount": "..."}],
+                        "ingredients": [{"name": "...", "quantity": "...", "unit": "..."}],
                         "image_url": "...",
                         "cook_time_minutes": 30
                     }

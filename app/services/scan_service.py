@@ -35,7 +35,7 @@ class ScanService:
             dict: Scan result với ingredients và recipe suggestion
         """
         # Step 1: Call food-ai-service để phát hiện nguyên liệu
-        detections, vision_ai_suggestion, provider = VisionService.detect_ingredients(image_bytes, filename)
+        detections, vision_ai_suggestion, provider = VisionService.detect_ingredients(image_bytes, filename, preferences)
         
         # Step 2: Match detected ingredients với database
         matched = ScanService._match_ingredients(detections)
@@ -181,7 +181,8 @@ class ScanService:
                 'normalized_name': normalized,
                 'confidence': confidence,
                 'matched': ingredient is not None,
-                'ingredient': ingredient
+                'ingredient': ingredient,
+                'is_manual': False
             })
 
         return matched

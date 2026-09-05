@@ -191,7 +191,8 @@ def seed_recipes():
                         id=str(uuid.uuid4()),
                         recipe_id=recipe.id,
                         ingredient_id=ingredient.id,
-                        amount='Vừa đủ',  # Default amount
+                        quantity='1',
+                        unit='vừa đủ',
                         is_optional=False,
                         sort_order=sort_idx
                     )

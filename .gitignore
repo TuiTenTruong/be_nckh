@@ -84,3 +84,8 @@ yarn-error.log
 dmypy.json
 .pyre/
 *.bak
+
+app/schemas/ingredient_task/
+static/images
+backups/
+(not_used)*

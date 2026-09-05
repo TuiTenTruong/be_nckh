@@ -46,13 +46,15 @@ class ErrorCode(str, Enum):
 class IngredientItem(BaseModel):
     """Schema cho một ingredient trong recipe"""
     name: str = Field(..., description="Tên nguyên liệu", min_length=1, max_length=100)
-    amount: str = Field(..., description="Số lượng/khối lượng", max_length=50)
+    quantity: str = Field(..., description="Số lượng", max_length=50)
+    unit: str = Field(default="", description="Đơn vị", max_length=50)
 
     class Config:
         json_schema_extra = {
             "example": {
                 "name": "Trứng gà",
-                "amount": "3 quả"
+                "quantity": "3",
+                "unit": "quả",
             }
         }
 
@@ -78,8 +80,8 @@ class RecipeItem(BaseModel):
                 "description": "Món ăn đơn giản, nhanh gọn với trứng và cà chua",
                 "steps": "1. Đập trứng vào bát, đánh tan\n2. Cắt cà chua múi cau\n3. Chiên trứng...",
                 "ingredients": [
-                    {"name": "Trứng gà", "amount": "3 quả"},
-                    {"name": "Cà chua", "amount": "2 quả"}
+                    {"name": "Trứng gà", "quantity": "3", "unit": "quả"},
+                    {"name": "Cà chua", "quantity": "2", "unit": "quả"}
                 ],
                 "cook_time_minutes": 15,
                 "difficulty": "De",
@@ -172,8 +174,8 @@ class RecipeSuggestionRequest(BaseModel):
                         "description": "Món ăn đơn giản",
                         "steps": "1. Đập trứng...",
                         "ingredients": [
-                            {"name": "Trứng gà", "amount": "3 quả"},
-                            {"name": "Cà chua", "amount": "2 quả"}
+                            {"name": "Trứng gà", "quantity": "3", "unit": "quả"},
+                            {"name": "Cà chua", "quantity": "2", "unit": "quả"}
                         ],
                         "cook_time_minutes": 15,
                         "difficulty": "De"
@@ -417,11 +419,11 @@ EXAMPLE_REQUEST_FULL = {
             "description": "Món ăn đơn giản với trứng và cà chua, thích hợp cho bữa sáng hoặc bữa phụ",
             "steps": "1. Đập trứng vào bát, thêm chút muối và đánh tan\n2. Rửa sạch cà chua, cắt múi cau\n3. Phi thơm hành với dầu ăn\n4. Đổ trứng vào chiên sơ\n5. Thêm cà chua, đảo đều\n6. Nêm nếm và tắt bếp",
             "ingredients": [
-                {"name": "Trứng gà", "amount": "3 quả"},
-                {"name": "Cà chua", "amount": "2 quả"},
-                {"name": "Hành lá", "amount": "2 cọng"},
-                {"name": "Dầu ăn", "amount": "2 thìa"},
-                {"name": "Nước mắm", "amount": "1 thìa"}
+                {"name": "Trứng gà", "quantity": "3", "unit": "quả"},
+                {"name": "Cà chua", "quantity": "2", "unit": "quả"},
+                {"name": "Hành lá", "quantity": "2", "unit": "cọng"},
+                {"name": "Dầu ăn", "quantity": "2", "unit": "thìa"},
+                {"name": "Nước mắm", "quantity": "1", "unit": "thìa"}
             ],
             "cook_time_minutes": 15,
             "difficulty": "De",
@@ -433,10 +435,10 @@ EXAMPLE_REQUEST_FULL = {
             "description": "Canh thanh mát với cà chua và trứng, dễ nấu",
             "steps": "1. Đun sôi nước\n2. Cho cà chua vào nấu mềm\n3. Đập trứng vào khuấy\n4. Nêm gia vị",
             "ingredients": [
-                {"name": "Trứng gà", "amount": "2 quả"},
-                {"name": "Cà chua", "amount": "3 quả"},
-                {"name": "Hành lá", "amount": "1 cọng"},
-                {"name": "Nước mắm", "amount": "2 thìa"}
+                {"name": "Trứng gà", "quantity": "2", "unit": "quả"},
+                {"name": "Cà chua", "quantity": "3", "unit": "quả"},
+                {"name": "Hành lá", "quantity": "1", "unit": "cọng"},
+                {"name": "Nước mắm", "quantity": "2", "unit": "thìa"}
             ],
             "cook_time_minutes": 20,
             "difficulty": "De",

@@ -18,63 +18,57 @@ pip install -r requirements.txt
 ```
 
 ## 3) Cau hinh bien moi truong
-
+ 
 Tao file `.env` trong thu muc [be_nckh](be_nckh) voi noi dung mau:
-
+ 
 ```env
 FLASK_ENV=development
 FLASK_HOST=0.0.0.0
 FLASK_PORT=5000
 FLASK_DEBUG=True
-
+ 
 DATABASE_URL=mysql+pymysql://root:@localhost:3306/nckh
-
-VISION_API_PROVIDER=service_demo
-SERVICE_DEMO_ENDPOINT=http://127.0.0.1:5055/mock/scan
-SERVICE_DEMO_API_KEY=
+ 
+# AI Service (food-ai-service) config
+VISION_API_PROVIDER=food_ai_service
+VISION_API_ENDPOINT=http://127.0.0.1:8000/api/ai/analyze-image
+AI_SERVICE_BASE_URL=http://127.0.0.1:8000
 ```
-
+ 
 Ghi chu:
 - `DATABASE_URL` can doi theo user/password MySQL tren may ban.
-- De chay scan mock, de `VISION_API_PROVIDER=service_demo`.
-
+- `VISION_API_PROVIDER` de mac dinh la `food_ai_service` de chay cung voi AI Service nhan dang nguyen lieu.
+- `AI_SERVICE_BASE_URL` la URL dung de goi cac API gợi ý cong thuc (RAG) va API chat của AI Service.
+ 
 ## 4) Khoi tao du lieu DB
-
+ 
 1. Tao database `nckh` tren MySQL/MariaDB.
 2. Import schema + seed co ban tu [be_nckh/database.sql](be_nckh/database.sql).
-
-
+ 
+ 
 ## 5) Chay backend
-
+ 
 ```bash
 cd be_nckh
 .venv\Scripts\activate
 python run.py
 ```
-
+ 
 Mac dinh API chay tai: `http://127.0.0.1:5000`
-
-## 6) Cau hinh service_demo
-
-Du an dang dung mock scan provider theo `SERVICE_DEMO_ENDPOINT`.
-
-Service demo local nam tai [service_demo](service_demo) va co huong dan rieng trong [service_demo/README.md](service_demo/README.md).
-
-Neu ban can bo file service demo hoac tai bo mau service:
-- Link: https://drive.google.com/drive/folders/1zOff7GIHDPl_LKxvM62cLLb2g3IJvHPT?usp=sharing
-
-Sau khi co folder service demo, chay service:
-
+ 
+## 6) Cau hinh food-ai-service
+ 
+Du an dang dung AI Service phan tich hinh anh o port `8000` su dung model YOLO + ResNet va ho tro goi goi y bang RAG nang cao (ChromaDB + vietnamese-sbert + BGE-Reranker) ket hop voi local Ollama (Gemma 2 / Qwen 2.5) hoac OpenAI.
+ 
+Huong dan bat AI Service:
+ 
 ```bash
-cd service_demo
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
+cd food-ai-service
+python run_ai.py
 ```
-
-Mac dinh service demo chay tai: `http://127.0.0.1:5055`
-
+ 
+Mac dinh AI service chay tai: `http://127.0.0.1:8000`
+ 
 ## 7) API nhanh de test
 - API Swagger: http://localhost:5000/swagger/#/
 - Health: `GET /health`

@@ -1,32 +1,55 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
+-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 18, 2026 lúc 02:51 PM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.2.12
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
+-- Host: localhost    Database: nckh
+-- ------------------------------------------------------
+-- Server version	10.4.32-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Cơ sở dữ liệu: `nckh`
+-- Table structure for table `ingredient_categories`
 --
 
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `ingredient_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ingredient_categories` (
+  `id` varchar(36) NOT NULL,
+  `slug` varchar(50) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `icon` varchar(10) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ix_ingredient_categories_slug` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Cấu trúc bảng cho bảng `ingredients`
+-- Dumping data for table `ingredient_categories`
 --
 
+LOCK TABLES `ingredient_categories` WRITE;
+/*!40000 ALTER TABLE `ingredient_categories` DISABLE KEYS */;
+INSERT INTO `ingredient_categories` VALUES ('c1','thit-ca','Thịt cá','🍗',1),('c2','trung-sua','Trứng sữa','🥚',2),('c3','rau-cu','Rau củ','🥬',3),('c4','tinh-bot','Tinh bột','🍚',4),('c5','gia-vi','Gia vị','🧂',5);
+/*!40000 ALTER TABLE `ingredient_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ingredients`
+--
+
+DROP TABLE IF EXISTS `ingredients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ingredients` (
   `id` varchar(36) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -35,172 +58,129 @@ CREATE TABLE `ingredients` (
   `image_url` text DEFAULT NULL,
   `is_popular` tinyint(1) DEFAULT NULL,
   `aliases` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`aliases`)),
-  `created_at` datetime DEFAULT NULL
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ix_ingredients_name` (`name`),
+  KEY `ix_ingredients_is_popular` (`is_popular`),
+  KEY `ix_ingredients_category_id` (`category_id`),
+  CONSTRAINT `ingredients_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `ingredient_categories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Đang đổ dữ liệu cho bảng `ingredients`
+-- Dumping data for table `ingredients`
 --
 
-INSERT INTO `ingredients` (`id`, `name`, `icon`, `category_id`, `image_url`, `is_popular`, `aliases`, `created_at`) VALUES
-('1', 'Thịt gà', '🍗', 'c1', 'images/thit_ga.jpg', 1, '[\"gà\",\"ức gà\"]', '2026-03-17 20:12:55'),
-('10', 'Hành tây', '🧅', 'c3', 'images/hanh_tay.jpg', 1, '[\"onion\"]', '2026-03-17 20:12:55'),
-('11', 'Tỏi', '🧄', 'c3', 'images/toi.jpg', 1, '[\"garlic\"]', '2026-03-17 20:12:55'),
-('12', 'Rau muống', '🥬', 'c3', 'images/rau_muong.jpg', 0, '[\"rau\"]', '2026-03-17 20:12:55'),
-('13', 'Bún', '🍜', 'c4', 'images/bun.jpg', 1, '[\"bún tươi\"]', '2026-03-17 20:12:55'),
-('14', 'Phở', '🍜', 'c4', 'images/pho.jpg', 1, '[\"bánh phở\"]', '2026-03-17 20:12:55'),
-('15', 'Mì gói', '🍝', 'c4', 'images/mi.jpg', 1, '[\"mì ăn liền\"]', '2026-03-17 20:12:55'),
-('16', 'Gạo', '🍚', 'c4', 'images/gao.jpg', 1, '[\"cơm\"]', '2026-03-17 20:12:55'),
-('17', 'Nước mắm', '🧂', 'c5', 'images/nuoc_mam.jpg', 1, '[\"mắm\"]', '2026-03-17 20:12:55'),
-('18', 'Đường', '🍬', 'c5', 'images/duong.jpg', 1, '[\"đường cát\"]', '2026-03-17 20:12:55'),
-('19', 'Muối', '🧂', 'c5', 'images/muoi.jpg', 1, '[\"muối biển\"]', '2026-03-17 20:12:55'),
-('2', 'Thịt bò', '🥩', 'c1', 'images/thit_bo.jpg', 1, '[\"bò\"]', '2026-03-17 20:12:55'),
-('20', 'Tiêu', '🌶️', 'c5', 'images/tieu.jpg', 0, '[\"hạt tiêu\"]', '2026-03-17 20:12:55'),
-('3', 'Cá hồi', '🐟', 'c1', 'images/ca_hoi.jpg', 1, '[\"salmon\"]', '2026-03-17 20:12:55'),
-('4', 'Tôm', '🦐', 'c1', 'images/tom.jpg', 1, '[\"tôm tươi\"]', '2026-03-17 20:12:55'),
-('5', 'Trứng gà', '🥚', 'c2', 'images/trung.jpg', 1, '[\"trứng\"]', '2026-03-17 20:12:55'),
-('6', 'Sữa tươi', '🥛', 'c2', 'images/sua.jpg', 0, '[\"sữa\"]', '2026-03-17 20:12:55'),
-('7', 'Cà chua', '🍅', 'c3', 'images/ca_chua.jpg', 1, '[\"tomato\"]', '2026-03-17 20:12:55'),
-('8', 'Khoai tây', '🥔', 'c3', 'images/khoai_tay.jpg', 1, '[\"potato\"]', '2026-03-17 20:12:55'),
-('9', 'Cà rốt', '🥕', 'c3', 'images/ca_rot.jpg', 1, '[\"carrot\"]', '2026-03-17 20:12:55'),
-('ing-seed-0001', 'Rau cần', '🥬', 'c3', 'images/rau_can.jpg', 0, '[]', '2026-03-18 20:16:29'),
-('ing-seed-0002', 'Rong mứt', '🥬', 'c3', 'images/rong_mut.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0003', 'Bạc hà', '🥬', 'c3', 'images/bac_ha.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0004', 'Nước mắm chay', '🧂', 'c5', 'images/nuoc_mam_chay.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0005', 'Hạt nêm', '🧂', 'c5', 'images/hat_nem.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0006', 'Cơm mẻ', '🧂', 'c5', 'images/com_me.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0007', 'Rau thì là', '🥬', 'c3', 'images/rau_thi_la.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0008', 'Rau ngò om', '🥬', 'c3', 'images/rau_ngo_om.jpg', 0, '[]', '2026-03-18 20:16:30'),
-('ing-seed-0009', 'Cá lóc', '🐟', 'c1', 'images/ca_loc.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0010', 'Xương cá lóc', '🐟', 'c1', 'images/xuong_ca_loc.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0011', 'Chả cá Nha Trang', '🐟', 'c1', 'images/cha_ca_nha_trang.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0012', 'Bánh canh bột gạo', '🍜', 'c4', 'images/banh_canh_bot_gao.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0013', 'Hành tím', '🧅', 'c5', 'images/hanh_tim.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0014', 'Bột ngọt', '🧂', 'c5', 'images/bot_ngot.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0015', 'Hành ngò', '🧂', 'c5', 'images/hanh_ngo.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0016', 'Cá bớp', '🐟', 'c1', 'images/ca_bop.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0017', 'Nước dừa', '🥥', 'c3', 'images/nuoc_dua.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0018', 'Dưa cà', '🍗', 'c1', 'images/dua_ca.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0019', 'Thịt ba rọi', '🥩', 'c1', 'images/thit_ba_roi.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0020', 'Đầu cá bông lau', '🍗', 'c1', 'images/au_ca_bong_lau.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0021', 'Đầu cá mú đen', '🍗', 'c1', 'images/au_ca_mu_en.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0022', 'Rau tần dày', '🥬', 'c3', 'images/rau_tan_day.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0023', 'Húng quế', '🌿', 'c3', 'images/hung_que.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0024', 'Hành lá', '🌿', 'c5', 'images/hanh_la.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0025', 'Ngò gai', '🌿', 'c3', 'images/ngo_gai.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0026', 'Ngò om', '🥬', 'c3', 'images/ngo_om.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0027', 'Ớt xiêm xanh', '🌶️', 'c5', 'images/ot_xiem_xanh.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0028', 'Lá me non', '🧂', 'c5', 'images/la_me_non.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0029', 'Giá đỗ', '🧂', 'c5', 'images/gia_o.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0030', 'Cá dứa', '🐟', 'c1', 'images/ca_dua.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0031', 'Ớt', '🌶️', 'c5', 'images/ot.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0032', 'Gia vị', '🧂', 'c5', 'images/gia_vi.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0033', 'Thịt vai bò', '🥩', 'c1', 'images/thit_vai_bo.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0034', 'Cải chua', '🥬', 'c3', 'images/cai_chua.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0035', 'Rau răm', '🌿', 'c3', 'images/rau_ram.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0036', 'Ngò rí', '🌿', 'c3', 'images/ngo_ri.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0037', 'Muối biển', '🧂', 'c5', 'images/muoi_bien.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0038', 'Đường trắng', '🍬', 'c3', 'images/uong_trang.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0039', 'Dầu ăn', '🧴', 'c3', 'images/dau_an.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0040', 'Ớt bột', '🌶️', 'c5', 'images/ot_bot.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0041', 'Cá hú', '🐟', 'c1', 'images/ca_hu.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0042', 'Nước màu', '🧴', 'c5', 'images/nuoc_mau.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0043', 'Cá rô đồng', '🍗', 'c1', 'images/ca_ro_ong.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0044', 'Nghệ', '🌿', 'c3', 'images/nghe.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0045', 'Gừng', '🌿', 'c5', 'images/gung.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0046', 'Hành tăm', '🧂', 'c5', 'images/hanh_tam.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0047', 'Sấu', '🥬', 'c3', 'images/sau.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0048', 'Thịt nạc', '🥩', 'c1', 'images/thit_nac.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0049', 'Bột canh', '🧂', 'c5', 'images/bot_canh.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0050', 'Mùi tàu', '🌿', 'c3', 'images/mui_tau.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0051', 'Hành khô', '🧅', 'c5', 'images/hanh_kho.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0052', 'Cải xanh', '🥬', 'c3', 'images/cai_xanh.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0053', 'Bột nêm', '🧂', 'c5', 'images/bot_nem.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0054', 'Cá lóc bông', '🍗', 'c1', 'images/ca_loc_bong.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0055', 'Tương ớt', '🧴', 'c5', 'images/tuong_ot.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0056', 'Bầu', '🥒', 'c3', 'images/bau.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0057', 'Giấm', '🧴', 'c5', 'images/giam.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0058', 'Tóp mỡ', '🥬', 'c3', 'images/top_mo.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0059', 'Ớt xiêm', '🌶️', 'c5', 'images/ot_xiem.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0060', 'Nước cốt chanh', '🍋', 'c5', 'images/nuoc_cot_chanh.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0061', 'Đường phèn', '🍬', 'c3', 'images/uong_phen.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0062', 'Thơm', '🍍', 'c3', 'images/thom.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0063', 'Ớt sừng', '🌶️', 'c5', 'images/ot_sung.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0064', 'Nước màu dừa', '🧴', 'c5', 'images/nuoc_mau_dua.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0065', 'Dứa', '🍍', 'c3', 'images/dua.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0066', 'Rong biển', '🥬', 'c3', 'images/rong_bien.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0067', 'Cá rô', '🐟', 'c1', 'images/ca_ro.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0068', 'Cá', '🐟', 'c1', 'images/ca.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0069', 'Riềng', '🌿', 'c5', 'images/rieng.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0070', 'Sả', '🌿', 'c5', 'images/sa.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0071', 'Thịt ba chỉ', '🥩', 'c1', 'images/thit_ba_chi.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0072', 'Mỡ lợn', '🥓', 'c1', 'images/mo_lon.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0073', 'Đường thốt nốt', '🍬', 'c3', 'images/uong_thot_not.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0074', 'Bắp bò', '🥩', 'c1', 'images/bap_bo.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0075', 'Đậu hũ', '🍱', 'c3', 'images/au_hu.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0076', 'Giá', '🧂', 'c5', 'images/gia.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0077', 'Bắp chuối', '🥬', 'c3', 'images/bap_chuoi.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0078', 'Me', '🧂', 'c5', 'images/me.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0079', 'Rau om', '🥬', 'c3', 'images/rau_om.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0080', 'Bột mì', '🍞', 'c4', 'images/bot_mi.jpg', 0, '[]', '2026-03-18 20:16:31'),
-('ing-seed-0081', 'Bột chiên giòn', '🍞', 'c4', 'images/bot_chien_gion.jpg', 0, '[]', '2026-03-18 20:16:31');
-
--- --------------------------------------------------------
+LOCK TABLES `ingredients` WRITE;
+/*!40000 ALTER TABLE `ingredients` DISABLE KEYS */;
+INSERT INTO `ingredients` VALUES ('ing-book-0001','Thịt bò','🍗','c1','images/thit_bo.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0002','Hành tây','🥬','c3','images/hanh_tay.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0003','Tỏi','🥬','c3','images/toi.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0004','Cà chua','🥬','c3','images/ca_chua.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0005','Rượu vang đỏ','🧂','c5','images/ruou_vang_o.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0006','Mỡ nước','🧂','c5','images/mo_nuoc.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0007','Bột mì','🍚','c4','images/bot_mi.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0008','Muối','🧂','c5','images/muoi.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0009','Hạt tiêu','🧂','c5','images/hat_tieu.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0010','Đùi gà','🍗','c1','images/ui_ga.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0011','Bắp cải','🥬','c3','images/bap_cai.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0012','Cà rốt','🥬','c3','images/ca_rot.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0013','Gừng','🥬','c3','images/gung.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0014','Nước mắm','🧂','c5','images/nuoc_mam.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0015','Đường','🧂','c5','images/uong.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0016','Thịt lợn','🍗','c1','images/thit_lon.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0017','Nước hàng','🧂','c5','images/nuoc_hang.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0018','Trứng gà','🥚','c2','images/trung_ga.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0019','Hành lá','🥬','c3','images/hanh_la.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0020','Dầu ăn','🧂','c5','images/dau_an.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0021','Mướp hương','🥬','c3','images/muop_huong.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0022','Tôm','🍗','c1','images/tom.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0023','Mì chính','🧂','c5','images/mi_chinh.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0024','Su su','🥬','c3','images/su_su.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0025','Đậu bắp','🥬','c3','images/au_bap.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0026','Bông cải xanh','🥬','c3','images/bong_cai_xanh.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0027','Đậu phụ','🥬','c3','images/au_phu.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0028','Ớt chuông','🥬','c3','images/ot_chuong.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0029','Bí đao','🥬','c3','images/bi_ao.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0030','Hành khô','🥬','c3','images/hanh_kho.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0031','Khoai tây','🍚','c4','images/khoai_tay.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0032','Trứng vịt','🥚','c2','images/trung_vit.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0033','Ngô','🍚','c4','images/ngo.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0034','Thịt gà','🍗','c1','images/thit_ga.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0035','Cà tím','🥬','c3','images/ca_tim.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0036','Củ cải','🥬','c3','images/cu_cai.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0037','Bí đỏ','🥬','c3','images/bi_o.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0038','Mướp đắng','🥬','c3','images/muop_ang.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0039','Khoai lang','🍚','c4','images/khoai_lang.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0040','Củ đậu','🥬','c3','images/cu_au.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0041','Giấm','🧂','c5','images/giam.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0042','Súp lơ','🥬','c3','images/sup_lo.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0043','Cánh gà','🍗','c1','images/canh_ga.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0044','Dưa chuột','🥬','c3','images/dua_chuot.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0045','Hạt nêm','🧂','c5','images/hat_nem.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0046','Mắm tôm','🧂','c5','images/mam_tom.jpg',0,'[]','2026-06-27 15:22:25'),('ing-book-0047','Xì dầu','🧂','c5','images/xi_dau.jpg',0,'[]','2026-06-27 15:22:25');
+/*!40000 ALTER TABLE `ingredients` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Cấu trúc bảng cho bảng `ingredient_categories`
+-- Table structure for table `pantry_items`
 --
 
-CREATE TABLE `ingredient_categories` (
-  `id` varchar(36) NOT NULL,
-  `slug` varchar(50) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `icon` varchar(10) DEFAULT NULL,
-  `sort_order` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `ingredient_categories`
---
-
-INSERT INTO `ingredient_categories` (`id`, `slug`, `name`, `icon`, `sort_order`) VALUES
-('c1', 'thit-ca', 'Thịt cá', '🍗', 1),
-('c2', 'trung-sua', 'Trứng sữa', '🥚', 2),
-('c3', 'rau-cu', 'Rau củ', '🥬', 3),
-('c4', 'tinh-bot', 'Tinh bột', '🍚', 4),
-('c5', 'gia-vi', 'Gia vị', '🧂', 5);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `pantry_items`
---
-
+DROP TABLE IF EXISTS `pantry_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pantry_items` (
   `id` varchar(36) NOT NULL,
   `user_id` varchar(64) NOT NULL,
   `ingredient_id` varchar(36) NOT NULL,
   `quantity` varchar(50) NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_pantry_user_ingredient` (`user_id`,`ingredient_id`),
+  KEY `ix_pantry_items_created_at` (`created_at`),
+  KEY `ix_pantry_items_user_id` (`user_id`),
+  KEY `ix_pantry_items_ingredient_id` (`ingredient_id`),
+  CONSTRAINT `pantry_items_ibfk_1` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Đang đổ dữ liệu cho bảng `pantry_items`
+-- Dumping data for table `pantry_items`
 --
 
-INSERT INTO `pantry_items` (`id`, `user_id`, `ingredient_id`, `quantity`, `created_at`, `updated_at`) VALUES
-('254e52b4-2974-4a89-829d-833fa4fc567c', 'mobile-demo-user', '11', '1', '2026-03-17 15:03:47', '2026-03-17 15:03:47'),
-('34d07ea4-de93-4eed-8b0a-a52afcd80777', 'mobile-demo-user', '10', '1', '2026-03-17 15:03:47', '2026-03-17 15:03:47'),
-('561fbc3b-2428-4908-843f-f80d296352e6', 'mobile-demo-user', '5', '1', '2026-03-17 15:03:47', '2026-03-17 15:03:47'),
-('cb56eb00-8420-47c4-a215-82b31f2303bb', 'mobile-demo-user', '7', '1', '2026-03-17 15:03:47', '2026-03-17 15:03:47');
-
--- --------------------------------------------------------
+LOCK TABLES `pantry_items` WRITE;
+/*!40000 ALTER TABLE `pantry_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pantry_items` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Cấu trúc bảng cho bảng `recipes`
+-- Table structure for table `recipe_ingredients`
 --
 
+DROP TABLE IF EXISTS `recipe_ingredients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recipe_ingredients` (
+  `id` varchar(36) NOT NULL,
+  `recipe_id` varchar(36) NOT NULL,
+  `ingredient_id` varchar(36) DEFAULT NULL,
+  `is_optional` tinyint(1) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT NULL,
+  `quantity` varchar(50) DEFAULT NULL,
+  `unit` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_recipe_ingredients_recipe_id` (`recipe_id`),
+  KEY `ix_recipe_ingredients_ingredient_id` (`ingredient_id`),
+  CONSTRAINT `recipe_ingredients_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `recipe_ingredients_ibfk_2` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `recipe_ingredients`
+--
+
+LOCK TABLES `recipe_ingredients` WRITE;
+/*!40000 ALTER TABLE `recipe_ingredients` DISABLE KEYS */;
+INSERT INTO `recipe_ingredients` VALUES ('rig-book-0001-01','recipe-book-0001','ing-book-0001',0,1,'1000','gram'),('rig-book-0001-02','recipe-book-0001','ing-book-0002',0,2,'150','gram'),('rig-book-0001-03','recipe-book-0001','ing-book-0003',0,3,'30','gram'),('rig-book-0001-04','recipe-book-0001','ing-book-0004',0,4,'100','gram'),('rig-book-0001-05','recipe-book-0001','ing-book-0005',0,5,'100','ml'),('rig-book-0001-06','recipe-book-0001','ing-book-0006',0,6,'100','gram'),('rig-book-0001-07','recipe-book-0001','ing-book-0007',0,7,'1','muỗng xúp'),('rig-book-0001-08','recipe-book-0001','ing-book-0008',0,8,'5','gram'),('rig-book-0001-09','recipe-book-0001','ing-book-0009',0,9,'2','gram'),('rig-book-0002-01','recipe-book-0002','ing-book-0010',0,1,'1','cái'),('rig-book-0002-02','recipe-book-0002','ing-book-0011',0,2,'150','gram'),('rig-book-0002-03','recipe-book-0002','ing-book-0012',0,3,'1','củ'),('rig-book-0002-04','recipe-book-0002','ing-book-0013',0,4,'10','gram'),('rig-book-0002-05','recipe-book-0002','ing-book-0014',0,5,'15','ml'),('rig-book-0002-06','recipe-book-0002','ing-book-0015',0,6,'5','gram'),('rig-book-0002-07','recipe-book-0002','ing-book-0008',0,7,'2','gram'),('rig-book-0003-01','recipe-book-0003','ing-book-0016',0,1,'500','gram'),('rig-book-0003-02','recipe-book-0003','ing-book-0003',0,2,'10','gram'),('rig-book-0003-03','recipe-book-0003','ing-book-0014',0,3,'20','ml'),('rig-book-0003-04','recipe-book-0003','ing-book-0015',0,4,'10','gram'),('rig-book-0003-05','recipe-book-0003','ing-book-0009',0,5,'5','gram'),('rig-book-0003-06','recipe-book-0003','ing-book-0017',0,6,'5','ml'),('rig-book-0004-01','recipe-book-0004','ing-book-0018',0,1,'3','quả'),('rig-book-0004-02','recipe-book-0004','ing-book-0004',0,2,'300','gram'),('rig-book-0004-03','recipe-book-0004','ing-book-0019',0,3,'10','gram'),('rig-book-0004-04','recipe-book-0004','ing-book-0020',0,4,'2','muỗng xúp'),('rig-book-0004-05','recipe-book-0004','ing-book-0014',0,5,'10','ml'),('rig-book-0004-06','recipe-book-0004','ing-book-0015',0,6,'5','gram'),('rig-book-0004-07','recipe-book-0004','ing-book-0009',0,7,'2','gram'),('rig-book-0004-08','recipe-book-0004','ing-book-0008',0,8,'3','gram'),('rig-book-0005-01','recipe-book-0005','ing-book-0021',0,1,'500','gram'),('rig-book-0005-02','recipe-book-0005','ing-book-0022',0,2,'200','gram'),('rig-book-0005-03','recipe-book-0005','ing-book-0014',0,3,'10','ml'),('rig-book-0005-04','recipe-book-0005','ing-book-0008',0,4,'3','gram'),('rig-book-0005-05','recipe-book-0005','ing-book-0023',0,5,'2','gram'),('rig-book-0006-01','recipe-book-0006','ing-book-0024',0,1,'500','gram'),('rig-book-0006-02','recipe-book-0006','ing-book-0003',0,2,'20','gram'),('rig-book-0006-03','recipe-book-0006','ing-book-0006',0,3,'30','gram'),('rig-book-0006-04','recipe-book-0006','ing-book-0014',0,4,'5','ml'),('rig-book-0006-05','recipe-book-0006','ing-book-0008',0,5,'2','gram'),('rig-book-0006-06','recipe-book-0006','ing-book-0023',0,6,'2','gram'),('rig-book-0007-01','recipe-book-0007','ing-book-0025',0,1,'200','gram'),('rig-book-0007-02','recipe-book-0007','ing-book-0008',0,2,'2','gram'),('rig-book-0008-01','recipe-book-0008','ing-book-0018',0,1,'4','quả'),('rig-book-0008-02','recipe-book-0008','ing-book-0022',0,2,'160','gram'),('rig-book-0008-03','recipe-book-0008','ing-book-0016',0,3,'80','gram'),('rig-book-0008-04','recipe-book-0008','ing-book-0019',0,4,'100','gram'),('rig-book-0008-05','recipe-book-0008','ing-book-0014',0,5,'10','ml'),('rig-book-0008-06','recipe-book-0008','ing-book-0009',0,6,'2','gram'),('rig-book-0008-07','recipe-book-0008','ing-book-0023',0,7,'2','gram'),('rig-book-0009-01','recipe-book-0009','ing-book-0026',0,1,'150','gram'),('rig-book-0009-02','recipe-book-0009','ing-book-0016',0,2,'500','gram (bầu dục)'),('rig-book-0009-03','recipe-book-0009','ing-book-0012',0,3,'150','gram'),('rig-book-0009-04','recipe-book-0009','ing-book-0002',0,4,'250','gram'),('rig-book-0009-05','recipe-book-0009','ing-book-0013',0,5,'20','gram'),('rig-book-0009-06','recipe-book-0009','ing-book-0020',0,6,'30','ml'),('rig-book-0009-07','recipe-book-0009','ing-book-0008',0,7,'2','gram'),('rig-book-0009-08','recipe-book-0009','ing-book-0023',0,8,'3','gram'),('rig-book-0010-01','recipe-book-0010','ing-book-0011',0,1,'500','gram'),('rig-book-0010-02','recipe-book-0010','ing-book-0018',0,2,'2','quả'),('rig-book-0010-03','recipe-book-0010','ing-book-0014',0,3,'15','ml'),('rig-book-0010-04','recipe-book-0010','ing-book-0008',0,4,'2','gram'),('rig-book-0011-01','recipe-book-0011','ing-book-0027',0,1,'2','miếng'),('rig-book-0011-02','recipe-book-0011','ing-book-0019',0,2,'10','gram (hẹ)'),('rig-book-0011-03','recipe-book-0011','ing-book-0008',0,3,'3','gram'),('rig-book-0011-04','recipe-book-0011','ing-book-0014',0,4,'5','ml'),('rig-book-0012-01','recipe-book-0012','ing-book-0001',0,1,'500','gram'),('rig-book-0012-02','recipe-book-0012','ing-book-0028',0,2,'300','gram'),('rig-book-0012-03','recipe-book-0012','ing-book-0004',0,3,'100','gram'),('rig-book-0012-04','recipe-book-0012','ing-book-0003',0,4,'10','gram'),('rig-book-0012-05','recipe-book-0012','ing-book-0014',0,5,'10','ml'),('rig-book-0012-06','recipe-book-0012','ing-book-0015',0,6,'5','gram'),('rig-book-0012-07','recipe-book-0012','ing-book-0006',0,7,'20','gram'),('rig-book-0012-08','recipe-book-0012','ing-book-0009',0,8,'1','gram'),('rig-book-0012-09','recipe-book-0012','ing-book-0023',0,9,'2','gram'),('rig-book-0013-01','recipe-book-0013','ing-book-0029',0,1,'500','gram (bầu)'),('rig-book-0013-02','recipe-book-0013','ing-book-0016',0,2,'100','gram'),('rig-book-0013-03','recipe-book-0013','ing-book-0022',0,3,'150','gram'),('rig-book-0013-04','recipe-book-0013','ing-book-0030',0,4,'10','gram'),('rig-book-0013-05','recipe-book-0013','ing-book-0006',0,5,'10','gram'),('rig-book-0013-06','recipe-book-0013','ing-book-0014',0,6,'10','ml'),('rig-book-0013-07','recipe-book-0013','ing-book-0009',0,7,'1','gram'),('rig-book-0013-08','recipe-book-0013','ing-book-0023',0,8,'2','gram'),('rig-book-0013-09','recipe-book-0013','ing-book-0008',0,9,'2','gram'),('rig-book-0014-01','recipe-book-0014','ing-book-0016',0,1,'500','gram (sườn)'),('rig-book-0014-02','recipe-book-0014','ing-book-0031',0,2,'400','gram'),('rig-book-0014-03','recipe-book-0014','ing-book-0012',0,3,'100','gram'),('rig-book-0014-04','recipe-book-0014','ing-book-0019',0,4,'10','gram'),('rig-book-0014-05','recipe-book-0014','ing-book-0008',0,5,'5','gram'),('rig-book-0014-06','recipe-book-0014','ing-book-0014',0,6,'5','ml'),('rig-book-0014-07','recipe-book-0014','ing-book-0023',0,7,'2','gram'),('rig-book-0015-01','recipe-book-0015','ing-book-0032',0,1,'6','quả'),('rig-book-0015-02','recipe-book-0015','ing-book-0016',0,2,'220','gram'),('rig-book-0015-03','recipe-book-0015','ing-book-0004',0,3,'100','gram'),('rig-book-0015-04','recipe-book-0015','ing-book-0003',0,4,'15','gram'),('rig-book-0015-05','recipe-book-0015','ing-book-0014',0,5,'15','ml'),('rig-book-0015-06','recipe-book-0015','ing-book-0009',0,6,'2','gram'),('rig-book-0015-07','recipe-book-0015','ing-book-0006',0,7,'30','gram'),('rig-book-0016-01','recipe-book-0016','ing-book-0033',0,1,'2','bắp'),('rig-book-0016-02','recipe-book-0016','ing-book-0022',0,2,'100','gram'),('rig-book-0016-03','recipe-book-0016','ing-book-0019',0,3,'30','gram'),('rig-book-0016-04','recipe-book-0016','ing-book-0020',0,4,'2','muỗng xúp'),('rig-book-0016-05','recipe-book-0016','ing-book-0015',0,5,'5','gram'),('rig-book-0016-06','recipe-book-0016','ing-book-0008',0,6,'2','gram'),('rig-book-0017-01','recipe-book-0017','ing-book-0029',0,1,'300','gram'),('rig-book-0017-02','recipe-book-0017','ing-book-0022',0,2,'100','gram'),('rig-book-0017-03','recipe-book-0017','ing-book-0016',0,3,'100','gram'),('rig-book-0017-04','recipe-book-0017','ing-book-0030',0,4,'10','gram'),('rig-book-0017-05','recipe-book-0017','ing-book-0015',0,5,'2','gram'),('rig-book-0017-06','recipe-book-0017','ing-book-0014',0,6,'10','ml'),('rig-book-0017-07','recipe-book-0017','ing-book-0008',0,7,'3','gram'),('rig-book-0017-08','recipe-book-0017','ing-book-0023',0,8,'2','gram'),('rig-book-0018-01','recipe-book-0018','ing-book-0034',0,1,'500','gram'),('rig-book-0018-02','recipe-book-0018','ing-book-0013',0,2,'30','gram'),('rig-book-0018-03','recipe-book-0018','ing-book-0014',0,3,'20','ml'),('rig-book-0018-04','recipe-book-0018','ing-book-0015',0,4,'10','gram'),('rig-book-0018-05','recipe-book-0018','ing-book-0008',0,5,'2','gram'),('rig-book-0018-06','recipe-book-0018','ing-book-0020',0,6,'15','ml'),('rig-book-0019-01','recipe-book-0019','ing-book-0026',0,1,'300','gram'),('rig-book-0019-02','recipe-book-0019','ing-book-0001',0,2,'200','gram'),('rig-book-0019-03','recipe-book-0019','ing-book-0003',0,3,'10','gram'),('rig-book-0019-04','recipe-book-0019','ing-book-0020',0,4,'20','ml'),('rig-book-0019-05','recipe-book-0019','ing-book-0014',0,5,'10','ml'),('rig-book-0019-06','recipe-book-0019','ing-book-0008',0,6,'2','gram'),('rig-book-0020-01','recipe-book-0020','ing-book-0035',0,1,'500','gram'),('rig-book-0020-02','recipe-book-0020','ing-book-0019',0,2,'20','gram'),('rig-book-0020-03','recipe-book-0020','ing-book-0003',0,3,'10','gram'),('rig-book-0020-04','recipe-book-0020','ing-book-0020',0,4,'30','ml'),('rig-book-0020-05','recipe-book-0020','ing-book-0014',0,5,'10','ml'),('rig-book-0020-06','recipe-book-0020','ing-book-0015',0,6,'5','gram'),('rig-book-0021-01','recipe-book-0021','ing-book-0016',0,1,'400','gram'),('rig-book-0021-02','recipe-book-0021','ing-book-0019',0,2,'50','gram'),('rig-book-0021-03','recipe-book-0021','ing-book-0014',0,3,'15','ml'),('rig-book-0021-04','recipe-book-0021','ing-book-0006',0,4,'20','gram'),('rig-book-0021-05','recipe-book-0021','ing-book-0009',0,5,'2','gram'),('rig-book-0022-01','recipe-book-0022','ing-book-0029',0,1,'500','gram'),('rig-book-0022-02','recipe-book-0022','ing-book-0003',0,2,'20','gram'),('rig-book-0022-03','recipe-book-0022','ing-book-0006',0,3,'20','gram'),('rig-book-0022-04','recipe-book-0022','ing-book-0014',0,4,'5','ml'),('rig-book-0022-05','recipe-book-0022','ing-book-0023',0,5,'2','gram'),('rig-book-0023-01','recipe-book-0023','ing-book-0021',0,1,'500','gram'),('rig-book-0023-02','recipe-book-0023','ing-book-0001',0,2,'500','gram'),('rig-book-0023-03','recipe-book-0023','ing-book-0003',0,3,'10','gram'),('rig-book-0023-04','recipe-book-0023','ing-book-0006',0,4,'30','gram'),('rig-book-0023-05','recipe-book-0023','ing-book-0014',0,5,'15','ml'),('rig-book-0023-06','recipe-book-0023','ing-book-0009',0,6,'2','gram'),('rig-book-0024-01','recipe-book-0024','ing-book-0011',0,1,'300','gram'),('rig-book-0024-02','recipe-book-0024','ing-book-0016',0,2,'150','gram'),('rig-book-0024-03','recipe-book-0024','ing-book-0014',0,3,'10','ml'),('rig-book-0024-04','recipe-book-0024','ing-book-0008',0,4,'3','gram'),('rig-book-0024-05','recipe-book-0024','ing-book-0023',0,5,'2','gram'),('rig-book-0025-01','recipe-book-0025','ing-book-0036',0,1,'300','gram'),('rig-book-0025-02','recipe-book-0025','ing-book-0016',0,2,'300','gram'),('rig-book-0025-03','recipe-book-0025','ing-book-0015',0,3,'30','gram'),('rig-book-0025-04','recipe-book-0025','ing-book-0014',0,4,'20','ml'),('rig-book-0025-05','recipe-book-0025','ing-book-0023',0,5,'2','gram'),('rig-book-0026-01','recipe-book-0026','ing-book-0037',0,1,'500','gram'),('rig-book-0026-02','recipe-book-0026','ing-book-0022',0,2,'100','gram'),('rig-book-0026-03','recipe-book-0026','ing-book-0019',0,3,'50','gram'),('rig-book-0026-04','recipe-book-0026','ing-book-0020',0,4,'20','ml'),('rig-book-0026-05','recipe-book-0026','ing-book-0008',0,5,'3','gram'),('rig-book-0027-01','recipe-book-0027','ing-book-0038',0,1,'500','gram'),('rig-book-0027-02','recipe-book-0027','ing-book-0012',0,2,'1','củ'),('rig-book-0027-03','recipe-book-0027','ing-book-0039',0,3,'100','gram'),('rig-book-0027-04','recipe-book-0027','ing-book-0003',0,4,'10','gram'),('rig-book-0027-05','recipe-book-0027','ing-book-0014',0,5,'10','ml'),('rig-book-0027-06','recipe-book-0027','ing-book-0015',0,6,'20','gram'),('rig-book-0028-01','recipe-book-0028','ing-book-0037',0,1,'400','gram'),('rig-book-0028-02','recipe-book-0028','ing-book-0022',0,2,'100','gram'),('rig-book-0028-03','recipe-book-0028','ing-book-0008',0,3,'3','gram'),('rig-book-0028-04','recipe-book-0028','ing-book-0023',0,4,'2','gram'),('rig-book-0029-01','recipe-book-0029','ing-book-0024',0,1,'500','gram'),('rig-book-0029-02','recipe-book-0029','ing-book-0022',0,2,'150','gram'),('rig-book-0029-03','recipe-book-0029','ing-book-0014',0,3,'5','ml'),('rig-book-0029-04','recipe-book-0029','ing-book-0020',0,4,'20','ml'),('rig-book-0030-01','recipe-book-0030','ing-book-0016',0,1,'150','gram (thịt thăn)'),('rig-book-0030-02','recipe-book-0030','ing-book-0018',0,2,'2','quả'),('rig-book-0030-03','recipe-book-0030','ing-book-0013',0,3,'10','gram'),('rig-book-0030-04','recipe-book-0030','ing-book-0014',0,4,'10','ml'),('rig-book-0030-05','recipe-book-0030','ing-book-0008',0,5,'3','gram'),('rig-book-0031-01','recipe-book-0031','ing-book-0036',0,1,'400','gram'),('rig-book-0031-02','recipe-book-0031','ing-book-0016',0,2,'300','gram (nạc vai)'),('rig-book-0031-03','recipe-book-0031','ing-book-0003',0,3,'10','gram'),('rig-book-0031-04','recipe-book-0031','ing-book-0014',0,4,'10','ml'),('rig-book-0031-05','recipe-book-0031','ing-book-0009',0,5,'2','gram'),('rig-book-0032-01','recipe-book-0032','ing-book-0029',0,1,'300','gram'),('rig-book-0032-02','recipe-book-0032','ing-book-0016',0,2,'150','gram (nạc dăm)'),('rig-book-0032-03','recipe-book-0032','ing-book-0019',0,3,'10','gram'),('rig-book-0032-04','recipe-book-0032','ing-book-0014',0,4,'10','ml'),('rig-book-0032-05','recipe-book-0032','ing-book-0008',0,5,'3','gram'),('rig-book-0033-01','recipe-book-0033','ing-book-0040',0,1,'200','gram'),('rig-book-0033-02','recipe-book-0033','ing-book-0012',0,2,'100','gram'),('rig-book-0033-03','recipe-book-0033','ing-book-0003',0,3,'20','gram'),('rig-book-0033-04','recipe-book-0033','ing-book-0015',0,4,'30','gram'),('rig-book-0033-05','recipe-book-0033','ing-book-0041',0,5,'20','ml'),('rig-book-0033-06','recipe-book-0033','ing-book-0008',0,6,'5','gram'),('rig-book-0034-01','recipe-book-0034','ing-book-0034',0,1,'500','gram (đùi)'),('rig-book-0034-02','recipe-book-0034','ing-book-0003',0,2,'10','gram'),('rig-book-0034-03','recipe-book-0034','ing-book-0020',0,3,'30','ml'),('rig-book-0034-04','recipe-book-0034','ing-book-0014',0,4,'20','ml'),('rig-book-0034-05','recipe-book-0034','ing-book-0015',0,5,'10','gram'),('rig-book-0035-01','recipe-book-0035','ing-book-0042',0,1,'300','gram (trắng)'),('rig-book-0035-02','recipe-book-0035','ing-book-0022',0,2,'200','gram'),('rig-book-0035-03','recipe-book-0035','ing-book-0006',0,3,'30','gram'),('rig-book-0035-04','recipe-book-0035','ing-book-0014',0,4,'10','ml'),('rig-book-0036-01','recipe-book-0036','ing-book-0035',0,1,'500','gram'),('rig-book-0036-02','recipe-book-0036','ing-book-0003',0,2,'20','gram'),('rig-book-0036-03','recipe-book-0036','ing-book-0020',0,3,'30','ml'),('rig-book-0036-04','recipe-book-0036','ing-book-0014',0,4,'10','ml'),('rig-book-0037-01','recipe-book-0037','ing-book-0018',0,1,'3','quả'),('rig-book-0037-02','recipe-book-0037','ing-book-0019',0,2,'20','gram'),('rig-book-0037-03','recipe-book-0037','ing-book-0006',0,3,'20','gram'),('rig-book-0037-04','recipe-book-0037','ing-book-0014',0,4,'10','ml'),('rig-book-0038-01','recipe-book-0038','ing-book-0001',0,1,'200','gram'),('rig-book-0038-02','recipe-book-0038','ing-book-0024',0,2,'500','gram'),('rig-book-0038-03','recipe-book-0038','ing-book-0003',0,3,'10','gram'),('rig-book-0038-04','recipe-book-0038','ing-book-0020',0,4,'20','ml'),('rig-book-0038-05','recipe-book-0038','ing-book-0008',0,5,'3','gram'),('rig-book-0039-01','recipe-book-0039','ing-book-0034',0,1,'1400','gram'),('rig-book-0039-02','recipe-book-0039','ing-book-0018',0,2,'6','quả'),('rig-book-0039-03','recipe-book-0039','ing-book-0030',0,3,'25','gram'),('rig-book-0039-04','recipe-book-0039','ing-book-0019',0,4,'50','gram'),('rig-book-0039-05','recipe-book-0039','ing-book-0014',0,5,'20','ml'),('rig-book-0039-06','recipe-book-0039','ing-book-0009',0,6,'5','gram'),('rig-book-0039-07','recipe-book-0039','ing-book-0023',0,7,'3','gram'),('rig-book-0040-01','recipe-book-0040','ing-book-0016',0,1,'400','gram (sườn)'),('rig-book-0040-02','recipe-book-0040','ing-book-0004',0,2,'300','gram'),('rig-book-0040-03','recipe-book-0040','ing-book-0002',0,3,'1','củ'),('rig-book-0040-04','recipe-book-0040','ing-book-0020',0,4,'50','ml'),('rig-book-0040-05','recipe-book-0040','ing-book-0015',0,5,'30','gram'),('rig-book-0040-06','recipe-book-0040','ing-book-0041',0,6,'20','ml'),('rig-book-0041-01','recipe-book-0041','ing-book-0001',0,1,'150','gram'),('rig-book-0041-02','recipe-book-0041','ing-book-0031',0,2,'400','gram'),('rig-book-0041-03','recipe-book-0041','ing-book-0003',0,3,'10','gram'),('rig-book-0041-04','recipe-book-0041','ing-book-0020',0,4,'30','ml'),('rig-book-0041-05','recipe-book-0041','ing-book-0014',0,5,'10','ml'),('rig-book-0042-01','recipe-book-0042','ing-book-0016',0,1,'1000','gram'),('rig-book-0042-02','recipe-book-0042','ing-book-0003',0,2,'10','gram'),('rig-book-0042-03','recipe-book-0042','ing-book-0014',0,3,'40','ml'),('rig-book-0042-04','recipe-book-0042','ing-book-0015',0,4,'10','gram'),('rig-book-0042-05','recipe-book-0042','ing-book-0017',0,5,'10','ml'),('rig-book-0043-01','recipe-book-0043','ing-book-0043',0,1,'300','gram'),('rig-book-0043-02','recipe-book-0043','ing-book-0029',0,2,'500','gram'),('rig-book-0043-03','recipe-book-0043','ing-book-0013',0,3,'5','gram'),('rig-book-0043-04','recipe-book-0043','ing-book-0008',0,4,'5','gram'),('rig-book-0043-05','recipe-book-0043','ing-book-0014',0,5,'10','ml'),('rig-book-0044-01','recipe-book-0044','ing-book-0034',0,1,'300','gram'),('rig-book-0044-02','recipe-book-0044','ing-book-0031',0,2,'400','gram'),('rig-book-0044-03','recipe-book-0044','ing-book-0004',0,3,'60','gram'),('rig-book-0044-04','recipe-book-0044','ing-book-0019',0,4,'20','gram'),('rig-book-0044-05','recipe-book-0044','ing-book-0008',0,5,'5','gram'),('rig-book-0045-01','recipe-book-0045','ing-book-0044',0,1,'1000','gram'),('rig-book-0045-02','recipe-book-0045','ing-book-0012',0,2,'100','gram'),('rig-book-0045-03','recipe-book-0045','ing-book-0016',0,3,'100','gram'),('rig-book-0045-04','recipe-book-0045','ing-book-0022',0,4,'100','gram'),('rig-book-0045-05','recipe-book-0045','ing-book-0015',0,5,'20','gram'),('rig-book-0045-06','recipe-book-0045','ing-book-0041',0,6,'20','ml'),('rig-book-0046-01','recipe-book-0046','ing-book-0016',0,1,'700','gram (ba chỉ)'),('rig-book-0046-02','recipe-book-0046','ing-book-0019',0,2,'30','gram'),('rig-book-0046-03','recipe-book-0046','ing-book-0006',0,3,'20','gram'),('rig-book-0046-04','recipe-book-0046','ing-book-0014',0,4,'15','ml'),('rig-book-0046-05','recipe-book-0046','ing-book-0009',0,5,'2','gram'),('rig-book-0047-01','recipe-book-0047','ing-book-0016',0,1,'200','gram'),('rig-book-0047-02','recipe-book-0047','ing-book-0013',0,2,'10','gram'),('rig-book-0047-03','recipe-book-0047','ing-book-0008',0,3,'5','gram'),('rig-book-0047-04','recipe-book-0047','ing-book-0023',0,4,'2','gram'),('rig-book-0048-01','recipe-book-0048','ing-book-0011',0,1,'500','gram'),('rig-book-0048-02','recipe-book-0048','ing-book-0016',0,2,'300','gram'),('rig-book-0048-03','recipe-book-0048','ing-book-0030',0,3,'20','gram'),('rig-book-0048-04','recipe-book-0048','ing-book-0006',0,4,'150','gram'),('rig-book-0048-05','recipe-book-0048','ing-book-0014',0,5,'10','ml'),('rig-book-0049-01','recipe-book-0049','ing-book-0011',0,1,'500','gram'),('rig-book-0049-02','recipe-book-0049','ing-book-0034',0,2,'200','gram'),('rig-book-0049-03','recipe-book-0049','ing-book-0003',0,3,'10','gram'),('rig-book-0049-04','recipe-book-0049','ing-book-0041',0,4,'20','ml'),('rig-book-0049-05','recipe-book-0049','ing-book-0014',0,5,'10','ml'),('rig-book-0049-06','recipe-book-0049','ing-book-0015',0,6,'10','gram'),('rig-book-0049-07','recipe-book-0049','ing-book-0008',0,7,'2','gram'),('rig-book-0050-01','recipe-book-0050','ing-book-0018',0,1,'4','quả'),('rig-book-0050-02','recipe-book-0050','ing-book-0006',0,2,'40','gram'),('rig-book-0050-03','recipe-book-0050','ing-book-0008',0,3,'2','gram'),('rig-book-0050-04','recipe-book-0050','ing-book-0009',0,4,'1','gram'),('rig-book-0051-01','recipe-book-0051','ing-book-0022',0,1,'300','gram'),('rig-book-0051-02','recipe-book-0051','ing-book-0016',0,2,'200','gram (nạc)'),('rig-book-0051-03','recipe-book-0051','ing-book-0030',0,3,'20','gram'),('rig-book-0051-04','recipe-book-0051','ing-book-0006',0,4,'10','gram'),('rig-book-0051-05','recipe-book-0051','ing-book-0014',0,5,'10','ml'),('rig-book-0051-06','recipe-book-0051','ing-book-0009',0,6,'2','gram'),('rig-book-0052-01','recipe-book-0052','ing-book-0022',0,1,'500','gram'),('rig-book-0052-02','recipe-book-0052','ing-book-0018',0,2,'1','quả'),('rig-book-0052-03','recipe-book-0052','ing-book-0003',0,3,'15','gram'),('rig-book-0052-04','recipe-book-0052','ing-book-0006',0,4,'80','gram'),('rig-book-0052-05','recipe-book-0052','ing-book-0015',0,5,'20','gram'),('rig-book-0052-06','recipe-book-0052','ing-book-0014',0,6,'10','ml'),('rig-book-0053-01','recipe-book-0053','ing-book-0016',0,1,'1000','gram (chân giò)'),('rig-book-0053-02','recipe-book-0053','ing-book-0016',0,2,'300','gram (bì)'),('rig-book-0053-03','recipe-book-0053','ing-book-0014',0,3,'20','ml'),('rig-book-0053-04','recipe-book-0053','ing-book-0009',0,4,'5','gram'),('rig-book-0053-05','recipe-book-0053','ing-book-0008',0,5,'5','gram'),('rig-book-0054-01','recipe-book-0054','ing-book-0016',0,1,'1000','gram (nạc)'),('rig-book-0054-02','recipe-book-0054','ing-book-0018',0,2,'1','quả'),('rig-book-0054-03','recipe-book-0054','ing-book-0030',0,3,'50','gram'),('rig-book-0054-04','recipe-book-0054','ing-book-0006',0,4,'200','gram'),('rig-book-0054-05','recipe-book-0054','ing-book-0015',0,5,'5','gram'),('rig-book-0054-06','recipe-book-0054','ing-book-0009',0,6,'3','gram'),('rig-book-0055-01','recipe-book-0055','ing-book-0034',0,1,'1','con'),('rig-book-0055-02','recipe-book-0055','ing-book-0013',0,2,'10','gram'),('rig-book-0055-03','recipe-book-0055','ing-book-0008',0,3,'5','gram'),('rig-book-0056-01','recipe-book-0056','ing-book-0001',0,1,'1000','gram (bắp)'),('rig-book-0056-02','recipe-book-0056','ing-book-0013',0,2,'50','gram'),('rig-book-0056-03','recipe-book-0056','ing-book-0014',0,3,'30','ml'),('rig-book-0056-04','recipe-book-0056','ing-book-0015',0,4,'10','gram'),('rig-book-0056-05','recipe-book-0056','ing-book-0017',0,5,'10','ml'),('rig-book-0057-01','recipe-book-0057','ing-book-0024',0,1,'500','gram'),('rig-book-0057-02','recipe-book-0057','ing-book-0012',0,2,'100','gram'),('rig-book-0057-03','recipe-book-0057','ing-book-0016',0,3,'100','gram'),('rig-book-0057-04','recipe-book-0057','ing-book-0022',0,4,'100','gram'),('rig-book-0057-05','recipe-book-0057','ing-book-0003',0,5,'10','gram'),('rig-book-0057-06','recipe-book-0057','ing-book-0015',0,6,'10','gram'),('rig-book-0057-07','recipe-book-0057','ing-book-0014',0,7,'10','ml'),('rig-book-0058-01','recipe-book-0058','ing-book-0038',0,1,'500','gram'),('rig-book-0058-02','recipe-book-0058','ing-book-0016',0,2,'300','gram'),('rig-book-0058-03','recipe-book-0058','ing-book-0019',0,3,'20','gram'),('rig-book-0058-04','recipe-book-0058','ing-book-0014',0,4,'15','ml'),('rig-book-0058-05','recipe-book-0058','ing-book-0009',0,5,'3','gram'),('rig-book-0059-01','recipe-book-0059','ing-book-0004',0,1,'500','gram'),('rig-book-0059-02','recipe-book-0059','ing-book-0016',0,2,'200','gram'),('rig-book-0059-03','recipe-book-0059','ing-book-0019',0,3,'10','gram'),('rig-book-0059-04','recipe-book-0059','ing-book-0014',0,4,'10','ml'),('rig-book-0059-05','recipe-book-0059','ing-book-0009',0,5,'2','gram'),('rig-book-0060-01','recipe-book-0060','ing-book-0027',0,1,'500','gram'),('rig-book-0060-02','recipe-book-0060','ing-book-0018',0,2,'2','quả'),('rig-book-0060-03','recipe-book-0060','ing-book-0019',0,3,'50','gram'),('rig-book-0060-04','recipe-book-0060','ing-book-0014',0,4,'10','ml'),('rig-book-0060-05','recipe-book-0060','ing-book-0009',0,5,'2','gram'),('rig-book-0061-01','recipe-book-0061','ing-book-0022',0,1,'300','gram'),('rig-book-0061-02','recipe-book-0061','ing-book-0015',0,2,'20','gram'),('rig-book-0061-03','recipe-book-0061','ing-book-0014',0,3,'15','ml'),('rig-book-0061-04','recipe-book-0061','ing-book-0003',0,4,'10','gram'),('rig-book-0062-01','recipe-book-0062','ing-book-0011',0,1,'500','gram'),('rig-book-0062-02','recipe-book-0062','ing-book-0003',0,2,'10','gram'),('rig-book-0062-03','recipe-book-0062','ing-book-0006',0,3,'20','gram'),('rig-book-0062-04','recipe-book-0062','ing-book-0008',0,4,'2','gram'),('rig-book-0063-01','recipe-book-0063','ing-book-0038',0,1,'500','gram'),('rig-book-0063-02','recipe-book-0063','ing-book-0032',0,2,'2','quả'),('rig-book-0063-03','recipe-book-0063','ing-book-0019',0,3,'20','gram'),('rig-book-0063-04','recipe-book-0063','ing-book-0020',0,4,'20','ml'),('rig-book-0063-05','recipe-book-0063','ing-book-0014',0,5,'10','ml'),('rig-book-0064-01','recipe-book-0064','ing-book-0016',0,1,'500','gram (sườn)'),('rig-book-0064-02','recipe-book-0064','ing-book-0015',0,2,'20','gram'),('rig-book-0064-03','recipe-book-0064','ing-book-0014',0,3,'30','ml'),('rig-book-0064-04','recipe-book-0064','ing-book-0003',0,4,'10','gram'),('rig-book-0065-01','recipe-book-0065','ing-book-0026',0,1,'300','gram'),('rig-book-0065-02','recipe-book-0065','ing-book-0022',0,2,'200','gram'),('rig-book-0065-03','recipe-book-0065','ing-book-0008',0,3,'3','gram'),('rig-book-0065-04','recipe-book-0065','ing-book-0023',0,4,'2','gram'),('rig-book-0066-01','recipe-book-0066','ing-book-0032',0,1,'4','quả'),('rig-book-0066-02','recipe-book-0066','ing-book-0019',0,2,'20','gram'),('rig-book-0066-03','recipe-book-0066','ing-book-0003',0,3,'10','gram'),('rig-book-0066-04','recipe-book-0066','ing-book-0020',0,4,'30','ml'),('rig-book-0066-05','recipe-book-0066','ing-book-0008',0,5,'2','gram'),('rig-book-0067-01','recipe-book-0067','ing-book-0032',0,1,'10','quả'),('rig-book-0067-02','recipe-book-0067','ing-book-0015',0,2,'30','gram'),('rig-book-0067-03','recipe-book-0067','ing-book-0014',0,3,'20','ml'),('rig-book-0067-04','recipe-book-0067','ing-book-0008',0,4,'3','gram'),('rig-book-0067-05','recipe-book-0067','ing-book-0009',0,5,'2','gram'),('rig-book-0068-01','recipe-book-0068','ing-book-0022',0,1,'1','con (500g)'),('rig-book-0068-02','recipe-book-0068','ing-book-0002',0,2,'1','cuả'),('rig-book-0068-03','recipe-book-0068','ing-book-0013',0,3,'20','gram'),('rig-book-0068-04','recipe-book-0068','ing-book-0008',0,4,'5','gram'),('rig-book-0069-01','recipe-book-0069','ing-book-0027',0,1,'400','gram'),('rig-book-0069-02','recipe-book-0069','ing-book-0003',0,2,'10','gram'),('rig-book-0069-03','recipe-book-0069','ing-book-0007',0,3,'50','gram'),('rig-book-0069-04','recipe-book-0069','ing-book-0020',0,4,'50','ml'),('rig-book-0069-05','recipe-book-0069','ing-book-0008',0,5,'2','gram'),('rig-book-0070-01','recipe-book-0070','ing-book-0001',0,1,'500','gram (bắp)'),('rig-book-0070-02','recipe-book-0070','ing-book-0014',0,2,'10','ml'),('rig-book-0070-03','recipe-book-0070','ing-book-0015',0,3,'5','gram'),('rig-book-0070-04','recipe-book-0070','ing-book-0045',0,4,'5','gram'),('rig-book-0071-01','recipe-book-0071','ing-book-0022',0,1,'200','gram'),('rig-book-0071-02','recipe-book-0071','ing-book-0003',0,2,'10','gram'),('rig-book-0071-03','recipe-book-0071','ing-book-0019',0,3,'10','gram'),('rig-book-0071-04','recipe-book-0071','ing-book-0014',0,4,'5','ml'),('rig-book-0071-05','recipe-book-0071','ing-book-0008',0,5,'2','gram'),('rig-book-0072-01','recipe-book-0072','ing-book-0016',0,1,'500','gram (tràng)'),('rig-book-0072-02','recipe-book-0072','ing-book-0013',0,2,'50','gram'),('rig-book-0072-03','recipe-book-0072','ing-book-0046',0,3,'10','gram'),('rig-book-0072-04','recipe-book-0072','ing-book-0014',0,4,'10','ml'),('rig-book-0072-05','recipe-book-0072','ing-book-0015',0,5,'5','gram'),('rig-book-0073-01','recipe-book-0073','ing-book-0022',0,1,'300','gram'),('rig-book-0073-02','recipe-book-0073','ing-book-0016',0,2,'100','gram (ba chỉ)'),('rig-book-0073-03','recipe-book-0073','ing-book-0003',0,3,'10','gram'),('rig-book-0073-04','recipe-book-0073','ing-book-0014',0,4,'15','ml'),('rig-book-0073-05','recipe-book-0073','ing-book-0020',0,5,'10','ml'),('rig-book-0074-01','recipe-book-0074','ing-book-0022',0,1,'300','gram'),('rig-book-0074-02','recipe-book-0074','ing-book-0016',0,2,'100','gram (thịt thăn)'),('rig-book-0074-03','recipe-book-0074','ing-book-0012',0,3,'50','gram'),('rig-book-0074-04','recipe-book-0074','ing-book-0019',0,4,'20','gram'),('rig-book-0074-05','recipe-book-0074','ing-book-0008',0,5,'3','gram'),('rig-book-0074-06','recipe-book-0074','ing-book-0014',0,6,'10','ml'),('rig-book-0075-01','recipe-book-0075','ing-book-0016',0,1,'500','gram (nạc)'),('rig-book-0075-02','recipe-book-0075','ing-book-0019',0,2,'20','gram'),('rig-book-0075-03','recipe-book-0075','ing-book-0014',0,3,'15','ml'),('rig-book-0075-04','recipe-book-0075','ing-book-0008',0,4,'3','gram'),('rig-book-0075-05','recipe-book-0075','ing-book-0023',0,5,'2','gram'),('rig-book-0076-01','recipe-book-0076','ing-book-0018',0,1,'3','quả'),('rig-book-0076-02','recipe-book-0076','ing-book-0016',0,2,'150','gram (nạc)'),('rig-book-0076-03','recipe-book-0076','ing-book-0030',0,3,'10','gram'),('rig-book-0076-04','recipe-book-0076','ing-book-0014',0,4,'10','ml'),('rig-book-0076-05','recipe-book-0076','ing-book-0006',0,5,'20','gram'),('rig-book-0076-06','recipe-book-0076','ing-book-0009',0,6,'1','gram'),('rig-book-0077-01','recipe-book-0077','ing-book-0001',0,1,'100','gram'),('rig-book-0077-02','recipe-book-0077','ing-book-0034',0,2,'50','gram (gan)'),('rig-book-0077-03','recipe-book-0077','ing-book-0002',0,3,'50','gram'),('rig-book-0077-04','recipe-book-0077','ing-book-0047',0,4,'10','ml'),('rig-book-0077-05','recipe-book-0077','ing-book-0020',0,5,'20','ml'),('rig-book-0078-01','recipe-book-0078','ing-book-0034',0,1,'1400','gram'),('rig-book-0078-02','recipe-book-0078','ing-book-0016',0,2,'200','gram (nạc vai)'),('rig-book-0078-03','recipe-book-0078','ing-book-0013',0,3,'10','gram'),('rig-book-0078-04','recipe-book-0078','ing-book-0014',0,4,'20','ml'),('rig-book-0078-05','recipe-book-0078','ing-book-0015',0,5,'8','gram'),('rig-book-0078-06','recipe-book-0078','ing-book-0008',0,6,'5','gram'),('rig-book-0079-01','recipe-book-0079','ing-book-0018',0,1,'270','gram'),('rig-book-0079-02','recipe-book-0079','ing-book-0016',0,2,'200','gram (nạc)'),('rig-book-0079-03','recipe-book-0079','ing-book-0019',0,3,'20','gram'),('rig-book-0079-04','recipe-book-0079','ing-book-0014',0,4,'10','ml'),('rig-book-0079-05','recipe-book-0079','ing-book-0009',0,5,'2','gram'),('rig-book-0080-01','recipe-book-0080','ing-book-0022',0,1,'300','gram (suá)'),('rig-book-0080-02','recipe-book-0080','ing-book-0018',0,2,'1','quả'),('rig-book-0080-03','recipe-book-0080','ing-book-0007',0,3,'50','gram'),('rig-book-0080-04','recipe-book-0080','ing-book-0020',0,4,'100','ml'),('rig-book-0080-05','recipe-book-0080','ing-book-0008',0,5,'2','gram'),('rig-book-0081-01','recipe-book-0081','ing-book-0027',0,1,'1','miếng (taâu huä ky)'),('rig-book-0081-02','recipe-book-0081','ing-book-0012',0,2,'100','gram'),('rig-book-0081-03','recipe-book-0081','ing-book-0020',0,3,'20','ml'),('rig-book-0081-04','recipe-book-0081','ing-book-0008',0,4,'2','gram'),('rig-book-0081-05','recipe-book-0081','ing-book-0015',0,5,'5','gram'),('rig-book-0082-01','recipe-book-0082','ing-book-0016',0,1,'200','gram (xay)'),('rig-book-0082-02','recipe-book-0082','ing-book-0022',0,2,'100','gram'),('rig-book-0082-03','recipe-book-0082','ing-book-0002',0,3,'1/2','củ'),('rig-book-0082-04','recipe-book-0082','ing-book-0020',0,4,'50','ml'),('rig-book-0082-05','recipe-book-0082','ing-book-0047',0,5,'5','ml'),('rig-book-0083-01','recipe-book-0083','ing-book-0001',0,1,'500','gram'),('rig-book-0083-02','recipe-book-0083','ing-book-0014',0,2,'30','ml'),('rig-book-0083-03','recipe-book-0083','ing-book-0015',0,3,'20','gram'),('rig-book-0083-04','recipe-book-0083','ing-book-0008',0,4,'5','gram'),('rig-book-0083-05','recipe-book-0083','ing-book-0009',0,5,'2','gram'),('rig-book-0084-01','recipe-book-0084','ing-book-0035',0,1,'500','gram'),('rig-book-0084-02','recipe-book-0084','ing-book-0020',0,2,'50','ml'),('rig-book-0084-03','recipe-book-0084','ing-book-0008',0,3,'2','gram'),('rig-book-0085-01','recipe-book-0085','ing-book-0016',0,1,'100','gram (ba chỉ)'),('rig-book-0085-02','recipe-book-0085','ing-book-0022',0,2,'100','gram'),('rig-book-0085-03','recipe-book-0085','ing-book-0019',0,3,'50','gram'),('rig-book-0085-04','recipe-book-0085','ing-book-0015',0,4,'10','gram'),('rig-book-0086-01','recipe-book-0086','ing-book-0032',0,1,'2','quả'),('rig-book-0086-02','recipe-book-0086','ing-book-0016',0,2,'100','gram (nạc)'),('rig-book-0086-03','recipe-book-0086','ing-book-0014',0,3,'10','ml'),('rig-book-0086-04','recipe-book-0086','ing-book-0020',0,4,'10','ml'),('rig-book-0086-05','recipe-book-0086','ing-book-0009',0,5,'2','gram'),('rig-book-0087-01','recipe-book-0087','ing-book-0033',0,1,'100','gram (non)'),('rig-book-0087-02','recipe-book-0087','ing-book-0012',0,2,'100','gram'),('rig-book-0087-03','recipe-book-0087','ing-book-0016',0,3,'100','gram'),('rig-book-0087-04','recipe-book-0087','ing-book-0008',0,4,'2','gram'),('rig-book-0087-05','recipe-book-0087','ing-book-0020',0,5,'10','ml'),('rig-book-0088-01','recipe-book-0088','ing-book-0016',0,1,'1000','gram (ba chỉ)'),('rig-book-0088-02','recipe-book-0088','ing-book-0015',0,2,'200','gram'),('rig-book-0089-01','recipe-book-0089','ing-book-0004',0,1,'200','gram'),('rig-book-0089-02','recipe-book-0089','ing-book-0018',0,2,'2','quả'),('rig-book-0089-03','recipe-book-0089','ing-book-0014',0,3,'5','ml'),('rig-book-0089-04','recipe-book-0089','ing-book-0008',0,4,'3','gram'),('rig-book-0090-01','recipe-book-0090','ing-book-0022',0,1,'500','gram (khô)'),('rig-book-0090-02','recipe-book-0090','ing-book-0016',0,2,'500','gram (nạc)'),('rig-book-0090-03','recipe-book-0090','ing-book-0044',0,3,'2','quả'),('rig-book-0090-04','recipe-book-0090','ing-book-0046',0,4,'2','muỗng xúp'),('rig-book-0090-05','recipe-book-0090','ing-book-0015',0,5,'100','gram'),('rig-book-0091-01','recipe-book-0091','ing-book-0016',0,1,'1500','gram'),('rig-book-0091-02','recipe-book-0091','ing-book-0014',0,2,'80','ml'),('rig-book-0091-03','recipe-book-0091','ing-book-0009',0,3,'5','gram'),('rig-book-0091-04','recipe-book-0091','ing-book-0008',0,4,'5','gram'),('rig-book-0092-01','recipe-book-0092','ing-book-0016',0,1,'500','gram (nạc)'),('rig-book-0092-02','recipe-book-0092','ing-book-0015',0,2,'30','gram'),('rig-book-0092-03','recipe-book-0092','ing-book-0014',0,3,'10','ml'),('rig-book-0092-04','recipe-book-0092','ing-book-0009',0,4,'10','gram'),('rig-book-0093-01','recipe-book-0093','ing-book-0038',0,1,'500','gram'),('rig-book-0093-02','recipe-book-0093','ing-book-0032',0,2,'2','quả'),('rig-book-0093-03','recipe-book-0093','ing-book-0014',0,3,'10','ml'),('rig-book-0093-04','recipe-book-0093','ing-book-0006',0,4,'50','gram'),('rig-book-0094-01','recipe-book-0094','ing-book-0039',0,1,'500','gram'),('rig-book-0094-02','recipe-book-0094','ing-book-0008',0,2,'2','gram'),('rig-book-0095-01','recipe-book-0095','ing-book-0016',0,1,'100','gram (nạc)'),('rig-book-0095-02','recipe-book-0095','ing-book-0027',0,2,'200','gram'),('rig-book-0095-03','recipe-book-0095','ing-book-0014',0,3,'10','ml'),('rig-book-0095-04','recipe-book-0095','ing-book-0008',0,4,'3','gram'),('rig-book-0096-01','recipe-book-0096','ing-book-0022',0,1,'200','gram'),('rig-book-0096-02','recipe-book-0096','ing-book-0034',0,2,'200','gram (ûác)'),('rig-book-0096-03','recipe-book-0096','ing-book-0044',0,3,'2','quả'),('rig-book-0096-04','recipe-book-0096','ing-book-0012',0,4,'1','cuả'),('rig-book-0096-05','recipe-book-0096','ing-book-0008',0,5,'2','gram');
+/*!40000 ALTER TABLE `recipe_ingredients` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `recipe_steps`
+--
+
+DROP TABLE IF EXISTS `recipe_steps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recipe_steps` (
+  `id` varchar(36) NOT NULL,
+  `recipe_id` varchar(36) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `title` varchar(200) DEFAULT NULL,
+  `description` text NOT NULL,
+  `image_url` text DEFAULT NULL,
+  `duration_minutes` int(11) DEFAULT NULL,
+  `tip` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_recipe_steps_recipe_id` (`recipe_id`),
+  CONSTRAINT `recipe_steps_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `recipe_steps`
+--
+
+LOCK TABLES `recipe_steps` WRITE;
+/*!40000 ALTER TABLE `recipe_steps` DISABLE KEYS */;
+INSERT INTO `recipe_steps` VALUES ('rst-book-0001-01','recipe-book-0001',1,'Tẩm ướp','Thịt bò thái vuông 3-4cm, ướp với muối, tiêu và rượu vang trong 60 phút.',NULL,NULL,'Nên dùng thịt thăn để món ăn mềm ngon.'),('rst-book-0001-02','recipe-book-0001',2,'Xào nấu','Phi thơm hành tỏi với mỡ, cho bò vào xào săn rồi thêm cà chua băm nhỏ vào đun cùng.',NULL,NULL,NULL),('rst-book-0001-03','recipe-book-0001',3,'Hầm chín','Cho nước dùng vào hầm nhỏ lửa đến khi thịt bò chín nhừ, nước xốt sánh lại nhờ bột mỳ.',NULL,NULL,NULL),('rst-book-0002-01','recipe-book-0002',1,'Hấp gà','Đùi gà khía mặt, hấp cách thủy cùng gừng đập dập đến khi chín mọng.',NULL,NULL,NULL),('rst-book-0002-02','recipe-book-0002',2,'Trộn rau','Bắp cải xắt ngắn, cà rốt thái mỏng, trộn cùng nước mắm chua ngọt và gừng.',NULL,NULL,'Để rau trong tủ lạnh 2 giờ trước khi dùng sẽ ngon hơn.'),('rst-book-0003-01','recipe-book-0003',1,'Tẩm ướp','Thịt thái miếng vừa ăn, ướp nước mắm, đường, tiêu và nước hàng trong 40 phút.',NULL,NULL,'Đợi đường tan hoàn toàn thành nước sền sệt.'),('rst-book-0003-02','recipe-book-0003',2,'Kho thịt','Phi thơm tỏi, cho thịt vào kho lửa nhỏ, đảo nhẹ đến khi nước quánh lại và rắc nhiều tiêu.',NULL,NULL,'Không thêm nước khi kho tiêu.'),('rst-book-0004-01','recipe-book-0004',1,'Nấu canh','Phi thơm hành, xào cà chua mềm với muối tiêu đường rồi thêm nước đun sôi. Chế từ từ trứng đã đánh tan vào và quấy nhẹ tay.',NULL,NULL,'Quấy nhanh tay để trứng tạo sợi mỏng như mây.'),('rst-book-0005-01','recipe-book-0005',1,'Chế biến','Đun sôi nước, cho tôm vào nấu chín rồi thả mướp thái vát vào nấu sôi bùng trở lại. Nêm mắm muối mì chính.',NULL,NULL,'Mướp và tôm chín tới giữ được độ ngọt và giòn.'),('rst-book-0006-01','recipe-book-0006',1,'Xào nhanh','Phi thơm tỏi với mỡ nóng, đổ su su đã thái chỉ vào xào trên lửa lớn. Nêm gia vị vừa ăn.',NULL,NULL,'Xào lửa thật lớn để su su giữ màu xanh và không ra nước.'),('rst-book-0007-01','recipe-book-0007',1,'Luộc','Thả đậu bắp vào nước sôi có pha ít muối, luộc chín giòn trong 5 phút.',NULL,NULL,NULL),('rst-book-0008-01','recipe-book-0008',1,'Làm nhân','Tôm bóc vỏ băm nhỏ, trộn cùng thịt lợn băm, hành lá và gia vị.',NULL,NULL,NULL),('rst-book-0008-02','recipe-book-0008',2,'Cuộn và hấp','Trứng gà tráng mỏng, cho nhân vào giữa cuộn tròn lại rồi đem hấp chín trong 20 phút.',NULL,NULL,'Khi chín cắt thành từng khoanh tròn bày ra đĩa.'),('rst-book-0009-01','recipe-book-0009',1,'Ướp bầu dục','Bầu dục thái miếng, ướp gừng và gia vị trong 30 phút cho thấm.',NULL,NULL,NULL),('rst-book-0009-02','recipe-book-0009',2,'Xào chín','Xào bầu dục chín vàng tái rồi trút các loại rau củ vào đảo trên lửa lớn cho chín giòn.',NULL,NULL,NULL),('rst-book-0010-01','recipe-book-0010',1,'Luộc','Luộc bắp cải và trứng trong nước sôi có ít muối trong 10 phút đến khi chín kỹ.',NULL,NULL,NULL),('rst-book-0011-01','recipe-book-0011',1,'Nấu canh','Đun sôi nước, cho đậu phụ vào nấu 5 phút rồi thêm hẹ cho sôi bùng là tắt bếp.',NULL,NULL,NULL),('rst-book-0012-01','recipe-book-0012',1,'Sơ chế','Thịt bò thái mỏng, ướp tỏi và nước mắm. Rau củ thái vừa ăn.',NULL,NULL,NULL),('rst-book-0012-02','recipe-book-0012',2,'Xào nấu','Phi thơm tỏi với mỡ, xào bò tái rồi cho ớt và cà chua vào đảo nhanh tay.',NULL,NULL,'Xào lửa lớn để giữ độ giòn của ớt.'),('rst-book-0013-01','recipe-book-0013',1,'Sơ chế','Bầu thái mỏng. Thịt lợn thái mỏng ướp mắm hành. Tôm bóc vỏ ướp tiêu.',NULL,NULL,NULL),('rst-book-0013-02','recipe-book-0013',2,'Xào chín','Xào tôm thịt săn để riêng. Xào bầu với lửa thật lớn, nêm gia vị rồi trút tôm thịt vào đảo đều.',NULL,NULL,'Thành phẩm ráo nước, bầu chín tới giữ màu xanh.'),('rst-book-0014-01','recipe-book-0014',1,'Nấu canh','Ninh sườn với muối cho mềm, hớt bọt. Cho khoai tây và cà rốt vào nấu chín nhừ, nêm lại mắm mì chính.',NULL,NULL,'Hớt bọt thường xuyên để nước canh được trong.'),('rst-book-0015-01','recipe-book-0015',1,'Nhồi nhân','Trứng luộc bổ đôi, lấy lòng đỏ trộn thịt lợn, mắm, tiêu rồi nhồi lại vào lòng trắng.',NULL,NULL,'Phết chút bột mì lên mặt thịt để khi rán không bị bong.'),('rst-book-0015-02','recipe-book-0015',2,'Rán và sốt','Rán vàng mặt thịt trứng, sau đó rim cùng xốt cà chua và tỏi phi.',NULL,NULL,NULL),('rst-book-0016-01','recipe-book-0016',1,'Chuẩn bị','Ngô tách hạt hấp chín. Tôm khô ngâm mềm để ráo.',NULL,NULL,NULL),('rst-book-0016-02','recipe-book-0016',2,'Xào','Phi thơm hành, xào tôm và ngô với đường muối cho thấm vị.',NULL,NULL,'Xào lửa vừa để hạt ngô không bị khô cứng.'),('rst-book-0017-01','recipe-book-0017',1,'Sơ chế','Tôm và thịt lợn băm nhỏ, trộn cùng hành khô và gia vị.',NULL,NULL,NULL),('rst-book-0017-02','recipe-book-0017',2,'Nấu canh','Đun sôi nước, xắn tôm thịt thành viên thả vào, sau đó cho bí đao vào nấu chín trong.',NULL,NULL,'Hớt bọt thường xuyên để nước canh được trong xanh.'),('rst-book-0018-01','recipe-book-0018',1,'Chế biến','Rang gà lửa lớn cho săn rồi hạ nhỏ lửa, đun cùng gừng và gia vị đến khi cạn nước.',NULL,NULL,'Gà rang săn, không chảy nước là đạt yêu cầu.'),('rst-book-0019-01','recipe-book-0019',1,'Chế biến','Xào bò tái để riêng. Xào bông cải chín tới rồi đổ bò vào đảo nhanh tay cùng gia vị.',NULL,NULL,'Thịt bò mềm và trắng, không bị dai là đạt.'),('rst-book-0020-01','recipe-book-0020',1,'Nướng cà','Nướng cà tím trên than hồng cho chín mềm, lột bỏ vỏ.',NULL,NULL,NULL),('rst-book-0020-02','recipe-book-0020',2,'Hoàn thiện','Rưới mỡ hành tỏi phi và nước mắm chua ngọt lên trên cà tím.',NULL,NULL,NULL),('rst-book-0021-01','recipe-book-0021',1,'Rang thịt','Xào thịt săn với mỡ, nêm mắm tiêu rồi cho hành lá vào đảo nhanh tay.',NULL,NULL,'Thịt có màu vàng nhạt, vị đậm đà là ngon.'),('rst-book-0022-01','recipe-book-0022',1,'Xào','Phi thơm tỏi, xào bí lửa lớn cho chín tới, nêm mắm và mì chính.',NULL,NULL,'Xào nhanh tay để bí không bị nát.'),('rst-book-0023-01','recipe-book-0023',1,'Xào nhanh','Phi tỏi xào bò và mướp lửa lớn cho chín tới, nêm mắm tiêu.',NULL,NULL,'Mướp không ra nước, thịt bò mềm là đạt yêu cầu.'),('rst-book-0024-01','recipe-book-0024',1,'Nấu canh','Nấu thịt lợn chín rồi cho bắp cải vào nấu mềm, nêm gia vị vừa ăn.',NULL,NULL,NULL),('rst-book-0025-01','recipe-book-0025',1,'Kho thịt','Kho thịt lợn cùng củ cải trắng và gia vị đến khi nước sánh lại.',NULL,NULL,'Thịt chắc, củ cải mềm là ngon.'),('rst-book-0026-01','recipe-book-0026',1,'Xào','Xào tôm chín, cho bí đỏ vào xào cùng hành lá đến khi bí mềm.',NULL,NULL,NULL),('rst-book-0027-01','recipe-book-0027',1,'Sơ chế','Mướp đắng thái lát mỏng ngâm muối. Khoai lang thái sợi hấp chín.',NULL,NULL,NULL),('rst-book-0027-02','recipe-book-0027',2,'Trộn nộm','Trộn mướp đắng, cà rốt, khoai lang với nước mắm tỏi ớt.',NULL,NULL,'Để 10 phút cho thấm gia vị trước khi ăn.'),('rst-book-0028-01','recipe-book-0028',1,'Nấu canh','Nấu tôm chín rồi cho bí đỏ thái miếng vào hầm mềm.',NULL,NULL,NULL),('rst-book-0029-01','recipe-book-0029',1,'Chế biến','Xào tôm chín rồi cho su su thái sợi vào đảo nhanh trên lửa lớn.',NULL,NULL,NULL),('rst-book-0030-01','recipe-book-0030',1,'Nấu canh','Đun sôi nước với gừng và thịt lợn thái mỏng, cho rau vào nấu chín.',NULL,NULL,NULL),('rst-book-0030-02','recipe-book-0030',2,'Thêm trứng','Đập trứng vào bát múc canh đổ lên trên rắc hành hoa.',NULL,NULL,'Không đánh tan trứng để giữ màu vàng đẹp.'),('rst-book-0031-01','recipe-book-0031',1,'Cuộn thịt','Thịt lợn băm trộn tỏi nhồi vào giữa lát củ cải mỏng rồi cuộn lại.',NULL,NULL,NULL),('rst-book-0031-02','recipe-book-0031',2,'Hấp chín','Xếp củ cải cuộn thịt vào đĩa rồi đem hấp cách thủy đến khi chín mềm.',NULL,NULL,'Thịt chắc, củ cải trong là đạt.'),('rst-book-0032-01','recipe-book-0032',1,'Làm viên thịt','Bí đao cắt khoanh nhồi thịt băm đã trộn gia vị vào giữa.',NULL,NULL,NULL),('rst-book-0032-02','recipe-book-0032',2,'Nấu canh','Thả bí nhồi thịt vào nấu trong nước sôi đến khi chín mềm.',NULL,NULL,'Hớt bọt thường xuyên để nước canh được trong.'),('rst-book-0033-01','recipe-book-0033',1,'Phơi héo','Củ đậu và cà rốt thái miếng rồi đem phơi héo để tạo độ giòn.',NULL,NULL,NULL),('rst-book-0033-02','recipe-book-0033',2,'Muối dưa','Ngâm rau củ vào hỗn hợp giấm đường nước mắm 3-4 ngày.',NULL,NULL,'Dưa vàng đều là ngon.'),('rst-book-0034-01','recipe-book-0034',1,'Xào gà','Xào gà săn với sả tỏi và ớt cho đến khi chín vàng đậm đà.',NULL,NULL,NULL),('rst-book-0035-01','recipe-book-0035',1,'Chế biến','Xào tôm chín rồi cho súp lơ trắng vào đảo cùng với gia vị.',NULL,NULL,NULL),('rst-book-0036-01','recipe-book-0036',1,'Chế biến','Phi tỏi thơm rồi xào cà tím đến khi mềm và thấm gia vị.',NULL,NULL,NULL),('rst-book-0037-01','recipe-book-0037',1,'Rán trứng','Đánh tan trứng với hành lá và gia vị rồi rán vàng hai mặt.',NULL,NULL,NULL),('rst-book-0038-01','recipe-book-0038',1,'Xào','Xào bò tái để riêng, sau đó xào su su chín rồi trút bò vào đảo cùng.',NULL,NULL,NULL),('rst-book-0039-01','recipe-book-0039',1,'Làm nhân','Gà rút xương, nhồi nhân gồm thịt gà băm, hạt sen và nấm vào bụng gà.',NULL,NULL,NULL),('rst-book-0039-02','recipe-book-0039',2,'Hấp chín','Cuộn trứng bên ngoài da gà rồi đem hấp cách thủy cho đến khi chín.',NULL,NULL,'Cắt khoanh tròn để lộ lớp nhân đẹp mắt.'),('rst-book-0040-01','recipe-book-0040',1,'Chiên sườn','Sườn luộc mềm, nhúng bột rồi chiên vàng đều.',NULL,NULL,NULL),('rst-book-0040-02','recipe-book-0040',2,'Làm xốt','Xào cà chua, hành tây cho mềm rồi trút sườn vào rim cùng giấm đường.',NULL,NULL,'Xốt sánh mịn bao quanh sườn là đạt.'),('rst-book-0041-01','recipe-book-0041',1,'Chế biến','Khoai tây thái sợi chiên sơ. Xào bò tái rồi cho khoai vào đảo cùng tỏi phi.',NULL,NULL,'Khoai tây không được gãy nát.'),('rst-book-0042-01','recipe-book-0042',1,'Kho thịt','Ướp thịt rồi kho cùng nước dừa tươi cho đến khi cạn nước và thịt mềm rục.',NULL,NULL,'Thịt có màu cánh gián nhạt, vị ngọt thanh.'),('rst-book-0043-01','recipe-book-0043',1,'Nấu canh','Ninh cánh gà với gừng rồi cho bí đao vào nấu chín tới.',NULL,NULL,'Hớt bọt để nước trong.'),('rst-book-0044-01','recipe-book-0044',1,'Hầm chín','Xào gà săn rồi hầm cùng khoai tây và cà chua đến khi mềm nhừ.',NULL,NULL,NULL),('rst-book-0045-01','recipe-book-0045',1,'Trộn nộm','Trộn rau củ thái chỉ với tôm thịt và nước mắm chua ngọt.',NULL,NULL,'Dưa phải ráo nước hoàn toàn.'),('rst-book-0046-01','recipe-book-0046',1,'Rang thịt','Cho thịt vào mỡ nóng rang săn, nêm gia vị rồi cho hành lá vào sau cùng.',NULL,NULL,NULL),('rst-book-0047-01','recipe-book-0047',1,'Nấu canh','Nấu thịt lợn với gừng rồi cho rau cải vào nấu chín nhanh trên lửa lớn.',NULL,NULL,NULL),('rst-book-0048-01','recipe-book-0048',1,'Gói bắp cải','Nhồi nhân thịt vào lá bắp cải rồi cuộn tròn lại.',NULL,NULL,NULL),('rst-book-0048-02','recipe-book-0048',2,'Hấp chín','Rán vàng cạnh cuộn bắp cải rồi đem hấp cách thủy đến khi chín.',NULL,NULL,NULL),('rst-book-0049-01','recipe-book-0049',1,'Sơ chế','Bắp cải thái chỉ, rửa sạch để ráo. Thịt gà luộc chín xé nhỏ.',NULL,NULL,NULL),('rst-book-0049-02','recipe-book-0049',2,'Trộn nộm','Pha nước mắm dấm đường tỏi ớt, trộn đều với bắp cải và gà, để 20 phút cho ngấm.',NULL,NULL,'Vắt bớt nước trước khi bày ra đĩa.'),('rst-book-0050-01','recipe-book-0050',1,'Rán trứng','Đun mỡ nóng già, đập trứng trực tiếp vào chảo, rắc muối tiêu lên trên mặt.',NULL,NULL,'Rán đến khi lòng trắng chín hoàn toàn thì lật mặt.'),('rst-book-0051-01','recipe-book-0051',1,'Giã nhân','Tôm bóc vỏ, thịt lợn thái mỏng, đem giã nhuyễn cùng hành khô và gia vị.',NULL,NULL,'Quết kỹ để mọc có độ dai tự nhiên.'),('rst-book-0051-02','recipe-book-0051',2,'Hấp chín','Viên mọc thành từng viên nhỏ, xếp vào đĩa rồi đem hấp cách thủy 20 phút.',NULL,NULL,NULL),('rst-book-0052-01','recipe-book-0052',1,'Tẩm bột','Tôm làm sạch, nhúng qua trứng đánh tan rồi lăn qua bột mì.',NULL,NULL,NULL),('rst-book-0052-02','recipe-book-0052',2,'Chiên vàng','Đun mỡ nóng già, cho tôm vào chiên vàng đều hai mặt cùng tỏi băm.',NULL,NULL,'Ăn nóng kèm nước chấm chua ngọt.'),('rst-book-0053-01','recipe-book-0053',1,'Ninh thịt','Thịt lợn và bì thái miếng vửa ăn, nêm mắm muối rồi ninh nhỏ lửa cho đến khi chín nhừ.',NULL,NULL,'Hớt bọt thường xuyên để nước đông được trong.'),('rst-book-0053-02','recipe-book-0053',2,'Đổ khuôn','Múc thịt ra bát, rắc nhiều tiêu lên trên rồi để vào ngăn mát tủ lạnh cho đông lại.',NULL,NULL,NULL),('rst-book-0054-01','recipe-book-0054',1,'Làm viên thịt','Thịt lợn băm trộn hành, đường, tiêu, lòng đỏ trứng rồi viên tròn.',NULL,NULL,NULL),('rst-book-0054-02','recipe-book-0054',2,'Chiên vàng','Lăn viên thịt qua bánh mì băm nhỏ rồi chiên vàng trong mỡ nóng.',NULL,NULL,'Viên thịt tròn đẹp, không bị vỡ là đạt yêu cầu.'),('rst-book-0055-01','recipe-book-0055',1,'Luộc gà','Cho gà vào nồi nước lạnh cùng gừng đập dập, đun sôi rồi vặn nhỏ lửa trong 15-20 phút.',NULL,NULL,'Dùng đũa châm vào đùi gà thấy nước trong chảy ra là chín.'),('rst-book-0056-01','recipe-book-0056',1,'Kho thịt','Thịt bò thái miếng vuông, ướp gia vị rồi kho cùng gừng thái sợi trên lửa nhỏ cho đến khi thịt mềm.',NULL,NULL,'Thịt thấm vị gừng, màu vàng nâu đẹp mắt.'),('rst-book-0057-01','recipe-book-0057',1,'Trộn nộm','Su su, cà rốt thái sợi bóp muối. Trộn cùng tôm thịt luộc và nước mắm tỏi ớt chua ngọt.',NULL,NULL,NULL),('rst-book-0058-01','recipe-book-0058',1,'Hầm chín','Mướp đắng nhồi nhân thịt băm, thả vào nước sôi hầm nhỏ lửa đến khi mïìm.',NULL,NULL,'Hớt bọt để nước canh được trong.'),('rst-book-0059-01','recipe-book-0059',1,'Hấp chín','Nhồi nhân thịt vào cà chua rồi đem hấp cách thủy cho đến khi chín.',NULL,NULL,NULL),('rst-book-0060-01','recipe-book-0060',1,'Hấp chín','Bóp nát đậu phụ trộn trứng và hành lá rồi đem hấp cách thủy 15 phút.',NULL,NULL,'Trứng phân bố đều, xốp là đạt.'),('rst-book-0061-01','recipe-book-0061',1,'Rim tôm','Xào tôm với tỏi phi, nêm mắm đường rim lửa nhỏ cho đến khi nước cạn và tôm săn lại.',NULL,NULL,NULL),('rst-book-0062-01','recipe-book-0062',1,'Xào','Phi thơm tỏi với mỡ nóng, trút bắp cải vào xào nhanh tay trên lửa lớn.',NULL,NULL,'Xào nhanh để giữ độ giòn và màu xanh.'),('rst-book-0063-01','recipe-book-0063',1,'Xào nhanh','Xào mướp đắng trên lửa lớn, rưới trứng vịt đã đánh tan vào đảo đều cho đến khi khô ráo.',NULL,NULL,'Đĩa xào không được có nước.'),('rst-book-0064-01','recipe-book-0064',1,'Rim sườn','Sườn chặt miếng nhỏ, chiên vàng rồi rim cùng nước mắm đường cho đến khi nước sền sệt.',NULL,NULL,NULL),('rst-book-0065-01','recipe-book-0065',1,'Nấu canh','Đun sôi nước, cho tôm vào nấu chín rồi thả bông cải vào đun sôi bùng là được.',NULL,NULL,NULL),('rst-book-0066-01','recipe-book-0066',1,'Rán trứng','Xào nấm chín tới rồi đổ hỗn hợp trứng hành vào chiên vàng 2 mặt.',NULL,NULL,NULL),('rst-book-0067-01','recipe-book-0067',1,'Sơ chế','Trứng luộc chín, bóc vỏ sạch.',NULL,NULL,NULL),('rst-book-0067-02','recipe-book-0067',2,'Kho trứng','Thắng 1/2 lượng đường làm nước hàng. Cho trứng vào nồi cùng nước hàng, nước mắm, muối và đường còn lại. Kho nhỏ lửa cho đến khi nước sánh lại.',NULL,NULL,'Trứng ngấm gia vị, không bị vỡ nát là đạt.'),('rst-book-0068-01','recipe-book-0068',1,'Chuẩn bị','Nấu nước với chanh, hành tây, gừng và muối cho sôi.',NULL,NULL,'Giữ nguyên râu và càng để tôm không mất nước ngọt.'),('rst-book-0068-02','recipe-book-0068',2,'Luộc tôm','Thả tôm vào nước sôi luộc trong 20 phút cho thịt chín đều.',NULL,NULL,NULL),('rst-book-0069-01','recipe-book-0069',1,'Tẩm bột','Trộn bột mì, ngũ vị hương, tỏi và muối. Nhuáng đậu phụ đã thái miếng vào hỗn hợp.',NULL,NULL,'Nên nhẹ tay tránh làm vỡ đậu phụ.'),('rst-book-0069-02','recipe-book-0069',2,'Rán vàng','Chiên đậu trong dầu nóng già cho đến khi vàng đều.',NULL,NULL,NULL),('rst-book-0070-01','recipe-book-0070',1,'Nấu nước dùng','Đun sôi nước với ngũ vị hương, nước mắm, đường, hạt nêm trong 10 phút.',NULL,NULL,NULL),('rst-book-0070-02','recipe-book-0070',2,'Hầm thịt','Cho thịt bò vào hầm cho đến khi chín mềm.',NULL,NULL,'Thái lát mỏng khi ăn kèm đồ chua.'),('rst-book-0071-01','recipe-book-0071',1,'Xào tôm','Phi thơm tỏi, xào tôm săn với nước mắm, đường trong lửa lớn.',NULL,NULL,NULL),('rst-book-0071-02','recipe-book-0071',2,'Hoàn thiện','Cho hoa vào xào nhanh cùng tôm và hành lá.',NULL,NULL,'Xào nhanh tay để giữ độ giòn của hoa.'),('rst-book-0072-01','recipe-book-0072',1,'Sơ chế','Luộc sơ tràng lợn, thái miếng vừa ăn. Ướp với nước mắm, đường, tiêu và gừng thái sợi.',NULL,NULL,NULL),('rst-book-0072-02','recipe-book-0072',2,'Hấp','Cho vào xững hấp trong 3 phút để ngấm gia vị.',NULL,NULL,'Ăn nóng với mắm tôm pha chanh ớt.'),('rst-book-0073-01','recipe-book-0073',1,'Xào thịt','Phi thơm tỏi, xào thịt ba chỉ săn lại.',NULL,NULL,NULL),('rst-book-0073-02','recipe-book-0073',2,'Kho tôm','Cho tôm đã đập dập vào xào cùng thịt và gia vị. Đun thêm nước sôi cho đến khi sền sệt trong 5 phút.',NULL,NULL,'Dùng làm nước chấm rau luộc rất ngon.'),('rst-book-0074-01','recipe-book-0074',1,'Giã nhân','Tôm bóc vỏ, thịt lợn thái mỏng đem giã nhuyễn với muối, nước mắm cho đến khi dẻo như giò.',NULL,NULL,'Quết kỹ để mọc có độ dai.'),('rst-book-0074-02','recipe-book-0074',2,'Nấu canh','Đun sôi nước với cà rốt, thả viên mọc vào nấu cho đến khi mọc nổi lên là chín.',NULL,NULL,'Hớt bọt để nước canh trong.'),('rst-book-0075-01','recipe-book-0075',1,'Trộn mọc','Thịt lợn băm nhỏ trộn với gia vị, viên thành từng viên tròn.',NULL,NULL,NULL),('rst-book-0075-02','recipe-book-0075',2,'Nấu canh','Ninh xương lấy nước dùng, thả mọc vào đun nhỏ lửa đến khi mọc nổi lên mặt nước.',NULL,NULL,'Nước dùng trong, viên mọc hồng là đạt.'),('rst-book-0076-01','recipe-book-0076',1,'Trộn hỗn hợp','Thịt lợn băm nhỏ trộn cùng trứng, hành khô băm và gia vị.',NULL,NULL,NULL),('rst-book-0076-02','recipe-book-0076',2,'Rán trứng','Đun mỡ nóng già, đổ hỗn hợp trứng vào dàn đều và rán vàng hai mặt.',NULL,NULL,'Rán lửa nhỏ để thịt bên trong chín đều.'),('rst-book-0077-01','recipe-book-0077',1,'Làm sốt gan','Xào hành tây và gan gà băm nhuyễn với gia vị và bơ cho chín.',NULL,NULL,NULL),('rst-book-0077-02','recipe-book-0077',2,'Áp chảo bò','Áp chảo thịt bò với dầu cho chín tới, sau đó rưới sốt gan lên trên.',NULL,NULL,'Thịt bò chín tái sẽ mềm hơn.'),('rst-book-0078-01','recipe-book-0078',1,'Làm nhân','Trộn thịt lợn băm, hạt sen luộc chín và gia vị làm nhân.',NULL,NULL,NULL),('rst-book-0078-02','recipe-book-0078',2,'Hấp gà','Nhồi nhân vào bụng gà đã rút xương, khâu kín lại rồi đem hấp cách thủy cho đến khi chín mềm.',NULL,NULL,NULL),('rst-book-0079-01','recipe-book-0079',1,'Làm nhân','Thịt băm trộn hành củ và gia vị mắm tiêu.',NULL,NULL,NULL),('rst-book-0079-02','recipe-book-0079',2,'Rán cuộn','Tráng trứng mỏng, đặt thịt vào giữa rồi cuộn lại, rán vàng các mặt.',NULL,NULL,'Lớp vỏ trứng phải bọc kín nhân thịt.'),('rst-book-0080-01','recipe-book-0080',1,'Tẩm bột','Tôm nhúng qua bột mì khô, sau đó nhúng qua trứng đánh tan.',NULL,NULL,NULL),('rst-book-0080-02','recipe-book-0080',2,'Chiên giòn','Chiên ngập dầu cho đến khi vỏ ngoài vàng đều, vớt ra thấm dầu.',NULL,NULL,'Ăn kèm sốt chua ngọt.'),('rst-book-0081-01','recipe-book-0081',1,'Xào rau củ','Phi thơm hành, cho cà rốt và đậu phụ vào xào chín.',NULL,NULL,NULL),('rst-book-0081-02','recipe-book-0081',2,'Trộn bún','Cho bún vào đảo cùng gia vị cho thấm đều.',NULL,NULL,NULL),('rst-book-0082-01','recipe-book-0082',1,'Làm nhân','Trộn thịt, tôm, hành tây và gia vị xì dầu, tiêu cho thấm.',NULL,NULL,NULL),('rst-book-0082-02','recipe-book-0082',2,'Gói và chiên','Gói nhân vào lá vằn thắn rồi chiên vàng giòn.',NULL,NULL,NULL),('rst-book-0083-01','recipe-book-0083',1,'Ướp thịt','Ướp bò với đường cho săn chắc, sau đó thêm mắm muối tiêu.',NULL,NULL,'Ướp ít nhất 1 giờ.'),('rst-book-0083-02','recipe-book-0083',2,'Kho thịt','Đun nhỏ lửa cho đến khi thịt mềm và nước kho sánh lại.',NULL,NULL,NULL),('rst-book-0084-01','recipe-book-0084',1,'Sơ chế','Cà tím thái miếng, nhúng qua lớp bột mỏng.',NULL,NULL,'Chọn quả màu tím ngả nâu sẽ dẻo hơn.'),('rst-book-0084-02','recipe-book-0084',2,'Chiên','Chiên vàng trong dầu nóng, vớt ra để ráo mỡ.',NULL,NULL,NULL),('rst-book-0085-01','recipe-book-0085',1,'Sơ chế','Luộc thịt và tôm, thái miếng mỏng. Hành lá trần qua nước sôi.',NULL,NULL,NULL),('rst-book-0085-02','recipe-book-0085',2,'Cuốn','Dùng lá cải xanh cuốn bún, tôm, thịt rồi buộc lại bằng hành lá.',NULL,NULL,'Chấm cùng tương đậu nành pha đường tỏi.'),('rst-book-0086-01','recipe-book-0086',1,'Trộn nhân','Đánh tan trứng với thịt băm, nấm và gia vị.',NULL,NULL,NULL),('rst-book-0086-02','recipe-book-0086',2,'Hấp chín','Đem hấp cách thủy cho đến khi chín, thoa lòng đỏ lên mặt cho đẹp.',NULL,NULL,NULL),('rst-book-0087-01','recipe-book-0087',1,'Chuẩn bị','Thái hạt lựu cà rốt, ngô và thịt lợn.',NULL,NULL,NULL),('rst-book-0087-02','recipe-book-0087',2,'Nấu cơm','Trộn các nguyên liệu vào cơm trắng, nêm gia vị rồi đun nóng.',NULL,NULL,NULL),('rst-book-0088-01','recipe-book-0088',1,'Luộc thịt','Luộc thịt chín rồi ngâm ngay vào nước đá cho sùn chắc.',NULL,NULL,NULL),('rst-book-0088-02','recipe-book-0088',2,'Ngâm tương','Nấu tương với đường cho tan rồi để nguội. Cho thịt vào hũ, đổ tương ngập mặt thịt ngâm trong 1 tuần.',NULL,NULL,NULL),('rst-book-0089-01','recipe-book-0089',1,'Nấu nước dùng','Xào cà chua mềm, thêm nước đun sôi.',NULL,NULL,NULL),('rst-book-0089-02','recipe-book-0089',2,'Thêm trứng','Đánh tan trứng, chế từ từ vào nồi nước đang sôi và quấy nhẹ tay.',NULL,NULL,NULL),('rst-book-0090-01','recipe-book-0090',1,'Làm xốt','Giaã tôm khô, trộn cùng thịt nạc, mắm tôm, đường và chanh, đun nhỏ lửa cho chín.',NULL,NULL,NULL),('rst-book-0090-02','recipe-book-0090',2,'Trình bày','Xếp rau ra đĩa, rưới xốt cay lên trên và dùng nóng.',NULL,NULL,NULL),('rst-book-0091-01','recipe-book-0091',1,'Chuẩn bị','Xào thịt săn với gia vị mắm muối tiêu cho thấm.',NULL,NULL,NULL),('rst-book-0091-02','recipe-book-0091',2,'Gói giò','Gói thịt vào lá rồi cho vào nồi luộc trong 1 giờ cho đến khi chín mềm.',NULL,NULL,NULL),('rst-book-0092-01','recipe-book-0092',1,'Làm nhân','Thịt xay nhuyễn ướp tỏi, muối, tiêu, đường và nước mắm trong 30 phút.',NULL,NULL,NULL),('rst-book-0092-02','recipe-book-0092',2,'Nhồi xúc xích','Nhồi nhân vào ruột non rồi đem luộc hoặc chiên chín.',NULL,NULL,NULL),('rst-book-0093-01','recipe-book-0093',1,'Xào mướp','Phi thơm hành, cho mướp đắng vào xào trên lửa lớn.',NULL,NULL,NULL),('rst-book-0093-02','recipe-book-0093',2,'Thêm trứng','Rưới trứng vịt đã đánh tan vào đảo đều cho đến khi khô ráo.',NULL,NULL,'Xào nhanh tay để mướp giữ màu xanh.'),('rst-book-0094-01','recipe-book-0094',1,'Luộc khoai','Luộc khoai ngập nước với ít muối cho đến khi xiên đũa thấy mềm bở.',NULL,NULL,NULL),('rst-book-0095-01','recipe-book-0095',1,'Nấu canh','Đun sôi nước với thịt, cho đậu phụ và hẹ vào đun sôi bùng là được.',NULL,NULL,NULL),('rst-book-0096-01','recipe-book-0096',1,'Chế biến','Tôm và gà luộc chín, thái miếng. Bó các nguyên liệu lại bằng hành lá.',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `recipe_steps` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `recipes`
+--
+
+DROP TABLE IF EXISTS `recipes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `recipes` (
   `id` varchar(36) NOT NULL,
   `name` varchar(200) NOT NULL,
@@ -215,368 +195,32 @@ CREATE TABLE `recipes` (
   `total_favorites` int(11) DEFAULT NULL,
   `total_views` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  `source` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_recipes_difficulty` (`difficulty`),
+  KEY `ix_recipes_is_featured` (`is_featured`),
+  KEY `ix_recipes_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Đang đổ dữ liệu cho bảng `recipes`
+-- Dumping data for table `recipes`
 --
 
-INSERT INTO `recipes` (`id`, `name`, `description`, `image_url`, `cook_time_minutes`, `difficulty`, `servings`, `cuisine_type`, `diet_tags`, `is_featured`, `total_favorites`, `total_views`, `created_at`, `updated_at`) VALUES
-('recipe-seed-0001', 'Canh chua rau cần rong biển', 'Cách làm món Canh chua rau cần rong biển ngon tuyệt của nhà mình ;) Ngày trước tôi nghĩ canh chua phải là những món theo truyền thống, theo vùng miền này nọ Sau này tôi mới phát hiện ra rằng cứ canh có vị chua thì được gọi là canh chua, còn nấu theo cách nào thì mình cứ nấu theo cách mà mình...', 'https://img-global.cpcdn.com/recipes/523c431c8781f6f8/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0002', 'Bánh canh chả cá, cá lóc', 'Cách làm món Bánh canh chả cá, cá lóc ngon tuyệt của nhà mình ;) Nước dùng bánh canh được hầm từ xương cá ngọt thanh rất ngon. #TapDeVang23', 'https://og-image.cookpad.com/global/vn/recipe/16118781?t=1701745481', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0003', 'Canh chua cá kho đậm vị cơm nhà', 'Cách làm món Canh chua cá kho đậm vị cơm nhà ngon tuyệt của nhà mình ;) #Cookpadapron2025 Combo canh chua và cá kho luôn là những món ăn hấp dẫn khó quên với khẩu vị người Việt, thêm dĩa đồ xào nhiều màu sắc tạo nên vị cơm nhà đậm đà khó quên', 'https://img-global.cpcdn.com/recipes/74834ec931494638/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0004', 'Canh Chua Đầu Cá Mú Đen', 'Cách làm món Canh Chua Đầu Cá Mú Đen ngon tuyệt của nhà mình ;) #10nam1hanhtrinh Tháng 9', 'https://img-global.cpcdn.com/recipes/f07c30c15d2c211b/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0005', 'Cá dứa kho tộ', 'Cách làm món Cá dứa (cá basa, cá hú, cá lăng) kho tộ (kho tiêu) ngon tuyệt của nhà mình ;) Đây là những loại cá da trơn, nếu không biết sơ chế và chế biến thì sẽ bị tanh. Tuy nhiên, cá có độ béo nên ăn thịt rất mềm ngậy, cùng mình làm nhen! #coginaudo', 'https://img-global.cpcdn.com/recipes/d02d8cb5fadc9b01/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0006', 'Canh Thịt Bò Nấu Cải Chua', 'Cách làm món Canh Thịt Bò Nấu Cải Chua ngon tuyệt của nhà mình ;) #10nam1hanhtrinh Tháng 7', 'https://img-global.cpcdn.com/recipes/50ccb4ef8b262bd1/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0007', 'Cá Bớp kho tộ', 'Cách làm món Cá Bớp kho tộ ngon tuyệt của nhà mình ;) Cá kho tộ là 1 trong những món xuất hiện thường xuyên trong bữa cơm của dân miền Tây cũng như mọi miền đất nước. Nó đậm đà đưa cơm, ăn kèm rau luộc, rau gém, chuối chát....Và không thể bỏ qua được khi nó xuất hiện cùng canh chua, bộ đôi món ăn...', 'https://img-global.cpcdn.com/recipes/f8af5fc08a2e36df/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0008', 'Cá Hú Kho Tộ', 'Cách làm món Cá Hú Kho Tộ ngon tuyệt của nhà mình ;) Cá mềm béo thơm ngon...đậm đà, bén cơm', 'https://img-global.cpcdn.com/recipes/b9a8a36be3d43c70/1200x630cq80/photo.jpg', 45, 'hard', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0009', 'Cá rô đồng kho tộ', 'Cách làm món Cá rô đồng kho tộ ngon tuyệt của nhà mình ;)', 'https://og-image.cookpad.com/global/vn/recipe/15033071?t=1621483863', 45, 'easy', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0010', 'Thịt thăn thuôn sấu', 'Cách làm món Thịt thăn thuôn sấu (canh chua sấu thịt thăn) ngon tuyệt của nhà mình ;) #10nam1hanhtrinh Tìm kiếm phổ biến:canh chua Mình khá tò mò khi tìm hiểu trong món canh chua sấu thịt thăn thì có 1 tên khác ít biết là \"thịt thăn thuôn sấu\" thì hóa ra từ \"Thuôn\" không phải chỉ hình dáng mà 1...', 'https://img-global.cpcdn.com/recipes/5f4dd5a6453ffc3b/1200x630cq80/photo.jpg', 30, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0011', 'Canh cải xanh nấu cá lóc', 'Cách làm món Canh cải xanh nấu cá lóc ngon tuyệt của nhà mình ;) #ancathang4 #globalapron2024', 'https://og-image.cookpad.com/global/vn/recipe/17308151?t=1711941514', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0012', 'Cá Lóc Bông Kho Nước Dừa Xiêm', 'Cách làm món Cá Lóc Bông Kho Nước Dừa Xiêm ngon tuyệt của nhà mình ;) #GlobalApron2024 #AnCaThang4 Cá Lóc Bông thịt chắc, ngọt, lại lành tính hơn nhiều loại cá khác. Vì vậy, khi dùng làm nguyên liệu cho món kho nước dừa sẽ rất hợp lý, vì cá sẽ không bị nhừ khi nấu lâu. #CaLocBongKhoNuocDua...', 'https://img-global.cpcdn.com/recipes/2b433704617555db/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0013', 'Cá lóc hấp bầu', 'Cách làm món Cá lóc hấp bầu ngon tuyệt của nhà mình ;) #TapDeVang23 Món ăn nổi tiếng với phần cá lóc hấp chín cùng phần bầu ngọt ngọt thấm vị cá rất ngon. Mình dùng phần phile cá cho đỡ xương', 'https://img-global.cpcdn.com/recipes/6bbc5aacfe3627d7/1200x630cq80/photo.jpg', 30, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0014', 'Cá rô kho tộ', 'Cách làm món Cá rô kho tộ ngon tuyệt của nhà mình ;) #bepvang', 'https://img-global.cpcdn.com/recipes/5fc1453e393c4c76/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0015', 'Canh Chua Thịt Bò', 'Cách làm món Canh Chua Thịt Bò ngon tuyệt của nhà mình ;) #CookpadApron2025 Tuần 14', 'https://img-global.cpcdn.com/recipes/59b593df2860c828/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0016', 'Phi lê Cá Lóc Bông Kho Thơm', 'Cách làm món Filet Cá Lóc Bông Kho Thơm ngon tuyệt của nhà mình ;) #GlobalCookpadGames2024 #VeTuLa Nhà ít người nên đi chợ về, lúc nào nấu xong cũng còn sót lại mỗi thứ một chút… Lục tủ lạnh, thấy còn sót lại 3 khoanh cá lóc bông từ khá lâu với nửa trái thơm (đồ ăn tráng miệng còn sót lại). Thế...', 'https://img-global.cpcdn.com/recipes/10ed99a647567016/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0017', 'Canh chua rau cần bạc hà', 'Cách làm món Canh chua rau cần bạc hà ngon tuyệt của nhà mình ;) Nếu bạn đang cần 1 tô canh chua nhẹ, thanh vị, đủ chất, không cần ăn với cơm thì đây là một gợi ý', 'https://img-global.cpcdn.com/recipes/4a4ea86ca0bcc1b3/1200x630cq80/photo.jpg', 35, 'medium', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0018', 'Cá rô kho tộ', 'Cách làm món CƠM NHÀ | CÁ RÔ KHO TỘ ngon tuyệt của nhà mình ;) Cá rô mà mang đi kho tộ, ăn kèm với rau luộc hoặc ít rau sống thì đúng là không chê vào đâu được. Mấy con cá rô hôm nay cũng khá đặc biệt mọi người ạ. Đây là loại cá rô suối, Ric mua được trong chuyến công tác về khu Suối Giai- Bình...', 'https://img-global.cpcdn.com/recipes/3306396d07b2b24c/1200x630cq80/photo.jpg', 45, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0019', 'Cá Kho Tộ', 'Cách làm món Cá Kho Tộ ngon tuyệt của nhà mình ;) Cá Kho Tộ- Xin chào các anh chị A/c, em yêu quí em Vào trang page cty Công ty CPDP Thiên Thảo tìm sản phẩm của em like=1 đ và share = 3 đ. Trân trọng cảm ơn cả nhà !...', 'https://img-global.cpcdn.com/recipes/4721cb98c78f1719/1200x630cq80/photo.jpg', 45, 'hard', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0020', 'Canh chua thịt bò đậu hũ', 'Cách làm món Canh chua thịt bò đậu hũ ngon tuyệt của nhà mình ;) #Cookpadapron2025 Tuần 14: Canh chua', 'https://img-global.cpcdn.com/recipes/166565f2ed5e1185/1200x630cq80/photo.jpg', 35, 'hard', 4, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31'),
-('recipe-seed-0021', 'Cá lóc fillet lăn bột chiên dòn', 'Cách làm món Cá lóc fillet lăn bột chiên dòn ngon tuyệt của nhà mình ;) #tapdevang23 Món cá chiên dòn tan, không xương dễ ăn cho bữa ăn kèm salad chiều nay!', 'https://img-global.cpcdn.com/recipes/2229538ef5364f91/1200x630cq80/photo.jpg', 25, 'medium', 3, 'Vietnamese', '[]', 0, 0, 0, '2026-03-18 20:16:31', '2026-03-18 20:16:31');
-
--- --------------------------------------------------------
+LOCK TABLES `recipes` WRITE;
+/*!40000 ALTER TABLE `recipes` DISABLE KEYS */;
+INSERT INTO `recipes` VALUES ('recipe-book-0001','Thịt bò nấu sốt vang','Thịt bò chín mềm, nước sốt màu hồng nâu, thơm mùi tỏi và hành tây.','images/thit_bo_nau_sot_vang.jpg',18,'medium',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\", \"Th\\u1ecbt b\\u00f2\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 103'),('recipe-book-0002','Cơm gà (Đùi gà hấp)','Đùi gà được hấp cách thủy để giữ nguyên vị ngọt tự nhiên, ăn kèm rau củ.','images/com_ga_dui_ga_hap.jpg',30,'medium',1,'Vietnamese','[\"M\\u00f3n ch\\u00ednh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 203'),('recipe-book-0003','Thịt lợn kho tiêu','Món mặn truyền thống với nước kho sánh đặc, cay nồng đậm đà.','images/thit_lon_kho_tieu.jpg',20,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 21'),('recipe-book-0004','Canh mây cà chua','Món canh rực rỡ sắc đỏ của cà chua và sợi trứng gà vàng óng như mây.','images/canh_may_ca_chua.jpg',15,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 121'),('recipe-book-0005','Canh mướp hương nấu tôm','Vị ngọt thanh khiết từ mướp hương hòa quyện cùng tôm tươi.','images/canh_muop_huong_nau_tom.jpg',10,'easy',3,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 36'),('recipe-book-0006','Su su xào tỏi phi','Món xào giữ được độ xanh giòn của su su và mùi thơm lừng của tỏi phi.','images/su_su_xao_toi_phi.jpg',8,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 33'),('recipe-book-0007','Đậu bắp luộc','Món ăn thanh đạm, giữ nguyên màu xanh và vị ngọt của đậu bắp.','images/dau_bap_luoc.jpg',5,'easy',2,'Vietnamese','[\"M\\u00f3n lu\\u1ed9c\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 10'),('recipe-book-0008','Trứng gà cuộn tôm thịt','Lớp trứng vàng bao bọc nhân tôm thịt dai ngọt, hấp chín thơm ngon.','images/trung_ga_cuon_tom_thit.jpg',20,'medium',2,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 53'),('recipe-book-0009','Bầu dục xào bông cải xanh','Món xào bổ dưỡng với bông cải xanh giòn và bầu dục lợn mềm thơm.','images/bau_duc_xao_bong_cai_xanh.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 93'),('recipe-book-0010','Bắp cải luộc chấm trứng gà','Món luộc thanh đạm giữ nguyên vị ngọt tự nhiên của rau bắp cải.','images/bap_cai_luoc_cham_trung_ga.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n lu\\u1ed9c\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Phổ biến trong ẩm thực Việt'),('recipe-book-0011','Canh hẹ nấu đậu phụ trắng','Món canh thanh mát với đậu phụ mềm và hẹ xanh tốt cho sức khỏe.','images/canh_he_nau_dau_phu_trang.jpg',5,'easy',4,'Vietnamese','[\"Canh\", \"Thanh nhi\\u1ec7t\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 89'),('recipe-book-0012','Thịt bò xào ớt Đà Lạt','Thịt bò thăn mềm xào cùng ớt chuông giòn ngọt và cà chua.','images/thit_bo_xao_ot_da_lat.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 98'),('recipe-book-0013','Bầu xào tôm thịt','Bầu thanh mát kết hợp cùng tôm tươi và thịt lợn nạc vai.','images/bau_xao_tom_thit.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 37'),('recipe-book-0014','Canh sườn khoai tây cà rốt','Nước canh ngọt từ sườn lợn, khoai tây bùi và cà rốt chín nhừ.','images/canh_suon_khoai_tay_ca_rot.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 119'),('recipe-book-0015','Trứng vịt nhồi thịt','Trứng vịt luộc nhồi thịt lợn băm, rán vàng rồi rim xốt cà chua.','images/trung_vit_nhoi_thit.jpg',30,'medium',3,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 54'),('recipe-book-0016','Ngô xào tôm','Vị ngọt của ngô non hòa quyện cùng vị đậm đà của tôm khô và hành lá.','images/ngo_xao_tom.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 77'),('recipe-book-0017','Canh bí đao nấu tôm thịt','Món canh giải nhiệt ngọt mát với tôm tươi và thịt lợn nạc.','images/canh_bi_dao_nau_tom_thit.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 41'),('recipe-book-0018','Gà rang gừng','Thịt gà săn chắc, thơm nồng mùi gừng tươi và nước mắm đậm đà.','images/ga_rang_gung.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 19'),('recipe-book-0019','Bông cải xanh xào thịt bò','Bông cải xanh giòn và thịt bò mềm đậm đà vị tỏi phi.','images/bong_cai_xanh_xao_thit_bo.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 158'),('recipe-book-0020','Cà tím nướng mỡ hành','Cà tím nướng thơm mùi khói quyện cùng mỡ hành tỏi béo ngậy.','images/ca_tim_nuong_mo_hanh.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n n\\u01b0\\u1edbng\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 163'),('recipe-book-0021','Thịt lợn rang hành hoa','Thịt lợn nạc rang cháy cạnh thơm lừng mùi hành lá và tiêu.','images/thit_lon_rang_hanh_hoa.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 188'),('recipe-book-0022','Bí xanh xào tỏi','Bí đao giòn ngọt thơm mùi tỏi phi, đĩa xào khô ráo.','images/bi_xanh_xao_toi.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 41'),('recipe-book-0023','Mướp xào thịt bò','Mướp xanh tươi xào cùng thịt bò mềm thơm mùi tỏi phi.','images/muop_xao_thit_bo.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 187'),('recipe-book-0024','Canh bắp cải thịt lợn','Vị ngọt tự nhiên từ rau bắp cải và thịt lợn nạc băm.','images/canh_bap_cai_thit_lon.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 29'),('recipe-book-0025','Củ cải trắng kho thịt','Thịt lợn đậm đà thấm vị ngọt thanh của củ cải trắng.','images/cu_cai_trang_kho_thit.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n kho\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 84'),('recipe-book-0026','Bí đỏ xào tôm','Bí đỏ bùi dẻo xào cùng tôm tươi và hành lá thơm nức.','images/bi_do_xao_tom.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 42'),('recipe-book-0027','Nộm mướp đắng cà rốt','Vị đắng thanh của khổ qua quyện cùng vị ngọt bùi của khoai lang và cà rốt.','images/nom_muop_dang_ca_rot.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n n\\u1ed9m\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 177'),('recipe-book-0028','Canh bí đỏ nấu tôm','Nước canh ngọt lịm từ tôm tươi và bí đỏ dẻo bùi.','images/canh_bi_do_nau_tom.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Phổ biến trong ẩm thực Việt'),('recipe-book-0029','Su su xào tôm','Món xào thanh đạm với su su giòn và vị ngọt từ tôm tươi.','images/su_su_xao_tom.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Phổ biến trong ẩm thực Việt'),('recipe-book-0030','Canh cải nấu thăn lợn trứng gà','Nước canh trong, vị ngọt từ thịt thăn và màu vàng đẹp mắt của trứng.','images/canh_cai_nau_than_lon_trung_ga.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 28'),('recipe-book-0031','Củ cải hấp thịt lợn','Củ cải trắng mềm mượt cuộn thịt băm, ngọt thanh tự nhiên.','images/cu_cai_hap_thit_lon.jpg',30,'medium',2,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 35'),('recipe-book-0032','Bí xanh nấu thịt viên','Thịt băm viên tròn ngọt đậm đà trong khoanh bí xanh mát.','images/bi_xanh_nau_thit_vien.jpg',30,'medium',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 117'),('recipe-book-0033','Dưa sắn (Củ đậu muối)','Món dưa muối giòn sần sật, thơm và chua dịu từ củ đậu và tỏi ớt.','images/dua_san_cu_dau_muoi.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n mu\\u1ed1i\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 54'),('recipe-book-0034','Cơm gà xào sả ớt','Đùi gà xào cay nồng với sả, ớt và tỏi phi thơm.','images/com_ga_xao_sa_ot.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n ch\\u00ednh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 51'),('recipe-book-0035','Súp lơ trắng xào tôm','Súp lơ giòn ngọt xào cùng tôm tươi hồng hào bắt mắt.','images/sup_lo_trang_xao_tom.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 93'),('recipe-book-0036','Cà tím xào tỏi','Cà tím mềm mượt, thấm đẫm vị tỏi phi vàng thơm.','images/ca_tim_xao_toi.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 49'),('recipe-book-0037','Trứng rán hành hoa','Món ăn quốc dân nhanh gọn, thơm mùi hành lá tơi xốp.','images/trung_ran_hanh_hoa.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 52'),('recipe-book-0038','Thịt bò xào su su','Thịt bò thăn mềm ngọt xào cùng su su xanh giòn.','images/thit_bo_xao_su_su.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 99'),('recipe-book-0039','Gà hấp trứng','Thịt gà nhồi nhân hạt sen, nấm và hấp cùng lớp trứng vàng óng.','images/ga_hap_trung.jpg',30,'hard',6,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 15'),('recipe-book-0040','Sườn xào chua ngọt','Sườn heo rán vàng kết hợp xốt cà chua và hành tây chua ngọt.','images/suon_xao_chua_ngot.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 33'),('recipe-book-0041','Khoai tây xào thịt bò','Thịt bò thăn mềm xào cùng khoai tây giòn và hành lá.','images/khoai_tay_xao_thit_bo.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 177'),('recipe-book-0042','Thịt lợn kho nước dừa','Thịt ba chỉ kho béo ngậy với nước dừa tươi ngọt lịm.','images/thit_lon_kho_nuoc_dua.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n kho\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 183'),('recipe-book-0043','Canh bí đao nấu cánh gà','Nước canh ngọt thanh khiết từ cánh gà và bí xanh.','images/canh_bi_dao_nau_canh_ga.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 41'),('recipe-book-0044','Gà nấu khoai tây','Thịt gà chín mềm hầm cùng khoai tây bùi và cà chua đỏ mọng.','images/ga_nau_khoai_tay.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n h\\u1ea7m\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 11'),('recipe-book-0045','Nộm dưa chuột cà rốt','Món khai vị giòn mát, chua ngọt hài hòa từ tôm thịt và rau củ.','images/nom_dua_chuot_ca_rot.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n n\\u1ed9m\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 45'),('recipe-book-0046','Thịt lợn rang','Thịt ba chỉ rang cháy cạnh thơm lừng mùi hành và hạt tiêu.','images/thit_lon_rang.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 188'),('recipe-book-0047','Rau cải xoong nấu thịt nạc','Canh thanh đạm với rau cải xoong và thịt lợn thái mỏng.','images/rau_cai_xoong_nau_thit_nac.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 27'),('recipe-book-0048','Bắp cải nhồi thịt hấp','Lá bắp cải cuộn nhân thịt băm mộc nhĩ, hấp chín thơm mùi hạt tiêu.','images/bap_cai_nhoi_thit_hap.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 30'),('recipe-book-0049','Nộm bắp cải gà','Món nộm giòn mát, vị chua cay mặn ngọt hài hòa, thơm mùi rau răm.','images/nom_bap_cai_ga.jpg',20,'easy',4,'Vietnamese','[\"M\\u00f3n n\\u1ed9m\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 31'),('recipe-book-0050','Trứng rán nguyên quả','Trứng gà rán chín tới, lòng trắng giòn, lòng đỏ béo bùi.','images/trung_ran_nguyen_qua.jpg',5,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 322'),('recipe-book-0051','Mọc tôm hấp','Viên tôm thịt dai ngọt, thơm mùi hành khô và tiêu trắng.','images/moc_tom_hap.jpg',20,'medium',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 118'),('recipe-book-0052','Tôm bao bột trứng rán','Tôm tươi lăn qua lớp bột trứng chiên vàng giòn, thơm nức tỏi phi.','images/tom_bao_bot_trung_ran.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n chi\\u00ean\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 121'),('recipe-book-0053','Thịt lợn nấu đông','Thịt lợn chín nhừ, nước đông trong suốt, vị đậm đà thơm mùi tiêu.','images/thit_lon_nau_dong.jpg',60,'medium',6,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 185'),('recipe-book-0054','Thịt lợn viên tuyết hoa','Viên thịt lợn mïìm mượt, bao phủ lớp bánh mì vụn trắng tinh như tuyết.','images/thit_lon_vien_tuyet_hoa.jpg',15,'medium',4,'Vietnamese','[\"M\\u00f3n chi\\u00ean\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 191'),('recipe-book-0055','Gà luộc gừng chanh','Gà chín tới, da vàng bóng, thịt ngọt thơm mùi gừng tươi.','images/ga_luoc_gung_chanh.jpg',20,'easy',4,'Vietnamese','[\"M\\u00f3n lu\\u1ed9c\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 9'),('recipe-book-0056','Thịt bò kho gừng','Thịt bò săn chắc, thơm nồng vị gừng và đậm đà nước mắm.','images/thit_bo_kho_gung.jpg',40,'medium',4,'Vietnamese','[\"M\\u00f3n kho\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 230'),('recipe-book-0057','Nộm su su tôm thịt','Su su và cà rốt giòn ngọt quyện cùng vị ngọt của tôm tươi.','images/nom_su_su_tom_thit.jpg',20,'easy',4,'Vietnamese','[\"M\\u00f3n n\\u1ed9m\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 34'),('recipe-book-0058','Mướp đắng hầm thịt lợn','Vị đắng thanh của mướp hòa quyện cùng nhân thịt băm đậm đà.','images/muop_dang_ham_thit_lon.jpg',30,'medium',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 38'),('recipe-book-0059','Cà chua nhồi thịt lợn hấp','Cà chua đỏ sẫm, vị chua ngọt, nhân thịt chắc thơm mùi tiêu.','images/ca_chua_nhoi_thit_lon_hap.jpg',20,'easy',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 48'),('recipe-book-0060','Đậu phụ hấp trứng gà','Món ăn mïìm mượt, béo ngậy, màu sắc vàng xanh bắt mắt.','images/dau_phu_hap_trung_ga.jpg',15,'easy',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 60'),('recipe-book-0061','Tôm rim mặn ngọt','Tôm sùn chắc, màu đỏ hồng, thấm vị mặn ngọt đậm đà.','images/tom_rim_man_ngot.jpg',15,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 120'),('recipe-book-0062','Bắp cải xào tỏi phi','Bắp cải giòn ngọt, thơm lừng mùi tỏi phi vàng.','images/bap_cai_xao_toi_phi.jpg',8,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 26'),('recipe-book-0063','Khổ qua xào trứng vịt','Món xào dân dã, khổ qua chín tái giòn, quyện trứng vịt béo bùi.','images/kho_qua_xao_trung_vit.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 199'),('recipe-book-0064','Sườn heo rim mặn','Sườn non mïìm ngọt, thấm đẫm gia vị mặn mặn ngọt ngọt.','images/suon_heo_rim_man.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 8'),('recipe-book-0065','Bông cải xanh nấu tôm tươi','Món canh ngọt thanh mát từ tôm tươi và súp lơ xanh.','images/bong_cai_xanh_nau_tom_tuoi.jpg',15,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 146'),('recipe-book-0066','Trứng rán nấm rơm','Trứng rán vàng rụm xen lẫn vị ngọt dai của nấm rơm trắng sạch.','images/trung_ran_nam_rom.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu ăn Gia Đình Miền Nam, trang 29'),('recipe-book-0067','Trứng vịt kho mặn','Trứng vịt có màu vàng đỏ cánh gián, ngấm gia vị mặn ngọt đậm đà.','images/trung_vit_kho_man.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 55'),('recipe-book-0068','Tôm hùm luộc','Tôm hùm luộc giữ trọn vị ngọt tự nhiên, thơm mùi chanh và hành tây.','images/tom_hum_luoc.jpg',20,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 93'),('recipe-book-0069','Đậu phụ ngũ vị','Đậu phụ tráng lớp bột ngũ vị giòn thơm, béo ngậy.','images/dau_phu_ngu_vi.jpg',20,'easy',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 186'),('recipe-book-0070','Thịt bò ngũ vị','Thịt bắp bò hầm chín mềm, thấm đẫm hương vị của các loại thảo mộc ngũ vị.','images/thit_bo_ngu_vi.jpg',15,'medium',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 83'),('recipe-book-0071','Hoa kim châm xào tôm','Món xào thanh đạm với vị ngọt của tôm và độ giòn của hoa kim châm.','images/hoa_kim_cham_xao_tom.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 170'),('recipe-book-0072','Tràng lợn hấp gừng','Tràng lợn trắng giòn, thơm nồng mùi gừng tươi, chấm cùng mắm tôm.','images/trang_lon_hap_gung.jpg',3,'easy',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 187'),('recipe-book-0073','Tôm kho đánh','Món ăn đậm đà với tôm băm và thịt ba chỉ xắt sợi.','images/tom_kho_danh.jpg',5,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 124'),('recipe-book-0074','Mọc tôm','Viên tôm hồng hào xen lẫn nấm hương vàng nâu, vị ngọt giòn dai.','images/moc_tom.jpg',30,'medium',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 118'),('recipe-book-0075','Mọc nước','Canh mọc thanh mát với nấm hương và hành lá thơm nồng.','images/moc_nuoc.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 186'),('recipe-book-0076','Trứng đúc thịt lợn','Món trứng rán xốp, thơm mùi hành khô và tiêu bột.','images/trung_duc_thit_lon.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','555 món ăn Việt Nam, trang 321'),('recipe-book-0077','Bò sốt gan','Thịt bò thăn mềm mịn kết hợp cùng sốt gan gà béo ngậy.','images/bo_sot_gan.jpg',30,'medium',2,'Vietnamese','[\"M\\u00f3n ch\\u00ednh\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 79'),('recipe-book-0078','Gà rút xương','Gà nguyên con được rút xương, nhồi nhân thịt và hạt sen cao cấp.','images/ga_rut_xuong.jpg',30,'hard',6,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 22'),('recipe-book-0079','Trứng cuộn thịt lợn','Nhân thịt lợn đậm đà được bao bọc bởi lớp trứng vàng xốp.','images/trung_cuon_thit_lon.jpg',30,'medium',2,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 49'),('recipe-book-0080','Tôm tẩm bột chiên','Tôm suá giòn rụm với lớp vỏ bột mì và trứng gà vàng ruộm.','images/tom_tam_bot_chien.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n chi\\u00ean\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Kỹ thuật chế biến 300 món ăn ngon, trang 92'),('recipe-book-0081','Bún xào chay','Sợi bún dai mïìm, thanh đạm với đậu phụ và cà rốt.','images/bun_xao_chay.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n chay\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 112'),('recipe-book-0082','Vằn thắn chiên giòn','Bánh rán nhân thịt và tôm đậm đà hương vị Trung Hoa.','images/van_than_chien_gion.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n chi\\u00ean\"]',0,0,0,'2026-06-27 15:22:25','2026-06-27 15:22:25','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 118'),('recipe-book-0083','Thịt bò kho','Thịt bò săn chắc, màu nâu đẹp, nước kho sền sệt đậm đà.','images/thit_bo_kho.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n kho\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 37'),('recipe-book-0084','Cà tím tẩm bột chiên','Cà tím mềm ngọt bên trong, giòn rụm lớp vỏ bên ngoài.','images/ca_tim_tam_bot_chien.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n chi\\u00ean\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 111'),('recipe-book-0085','Cuốn diệp','Món cuốn thanh mát từ lá cải xanh, thịt luộc và tôm.','images/cuon_diep.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n cu\\u1ed1n\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 125'),('recipe-book-0086','Chả trứng hấp','Chả mềm mượt, béo ngậy với thịt băm và nấm mèo.','images/cha_trung_hap.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n h\\u1ea5p\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 218'),('recipe-book-0087','Cơm thập cẩm hạt ngô','Món cơm đầy màu sắc và dinh dưỡng với ngô non và thịt nạc.','images/com_thap_cam_hat_ngo.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n ch\\u00ednh\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 60'),('recipe-book-0088','Thịt luộc giấm tương','Thịt lợn luộc chín tới, ngâm trong hỗn hợp tương bần mặn ngọt.','images/thit_luoc_giam_tuong.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 128'),('recipe-book-0089','Cà chua nấu trứng','Canh trứng rực rỡ sắc đỏ, vị chua dịu dễ ăn.','images/ca_chua_nau_trung.jpg',15,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','555 món ăn Việt Nam, trang 47'),('recipe-book-0090','Rau sốt cay','Món trộn đậm đà với tôm, thịt băm và xốt mắm tôm tỏi ớt.','images/rau_sot_cay.jpg',30,'easy',4,'Vietnamese','[\"M\\u00f3n n\\u1ed9m\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 108'),('recipe-book-0091','Giò mỡ','Giò lợn chùn giòn, thơm mùi tiêu và mắm truyền thống.','images/gio_mo.jpg',30,'medium',6,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Kỹ thuật chế biến 300 món ăn ngon, trang 76'),('recipe-book-0092','Xúc xích','Thành phẩm dai ngọt, thơm mùi tỏi và gia vị đặc trưng.','images/xuc_xich.jpg',30,'hard',6,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Kỹ thuật chế biến 300 món ăn ngon, trang 78'),('recipe-book-0093','Mướp đắng xào trứng vịt','Vị đắng thanh quyện trứng vịt béo ngậy, đĩa xào khô ráo.','images/muop_dang_xao_trung_vit.jpg',10,'easy',2,'Vietnamese','[\"M\\u00f3n x\\u00e0o\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','555 món ăn Việt Nam, trang 34'),('recipe-book-0094','Khoai lang luộc','Khoai lang mïìm bở, bùi ngọt tự nhiên.','images/khoai_lang_luoc.jpg',30,'easy',2,'Vietnamese','[\"M\\u00f3n ch\\u00ednh\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 46'),('recipe-book-0095','Canh hẹ nấu thịt lợn','Sự kết hợp hoàn hảo giữa hẹ xanh và thịt lợn nạc thanh nhiệt.','images/canh_he_nau_thit_lon.jpg',30,'easy',4,'Vietnamese','[\"Canh\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','555 món ăn Việt Nam, trang 51'),('recipe-book-0096','Tôm bó ngó sen','Tôm và thịt gà dai ngọt bó cùng các loại rau củ giòn mát.','images/tom_bo_ngo_sen.jpg',30,'medium',4,'Vietnamese','[\"M\\u00f3n m\\u1eb7n\"]',0,0,0,'2026-06-27 15:22:26','2026-06-27 15:22:26','Nấu hơn 200 món ăn truyền thống Việt Nam, trang 223');
+/*!40000 ALTER TABLE `recipes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Cấu trúc bảng cho bảng `recipe_ingredients`
+-- Table structure for table `scan_sessions`
 --
 
-CREATE TABLE `recipe_ingredients` (
-  `id` varchar(36) NOT NULL,
-  `recipe_id` varchar(36) NOT NULL,
-  `ingredient_id` varchar(36) DEFAULT NULL,
-  `amount` varchar(50) NOT NULL,
-  `is_optional` tinyint(1) DEFAULT NULL,
-  `sort_order` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `recipe_ingredients`
---
-
-INSERT INTO `recipe_ingredients` (`id`, `recipe_id`, `ingredient_id`, `amount`, `is_optional`, `sort_order`) VALUES
-('rig-seed-00001', 'recipe-seed-0001', '7', 'to taste', 0, 1),
-('rig-seed-00002', 'recipe-seed-0001', 'ing-seed-0001', 'to taste', 0, 2),
-('rig-seed-00003', 'recipe-seed-0001', 'ing-seed-0002', 'to taste', 0, 3),
-('rig-seed-00004', 'recipe-seed-0001', 'ing-seed-0003', 'to taste', 0, 4),
-('rig-seed-00005', 'recipe-seed-0001', 'ing-seed-0004', 'to taste', 0, 5),
-('rig-seed-00006', 'recipe-seed-0001', 'ing-seed-0005', 'to taste', 0, 6),
-('rig-seed-00007', 'recipe-seed-0001', 'ing-seed-0006', 'to taste', 0, 7),
-('rig-seed-00008', 'recipe-seed-0001', 'ing-seed-0007', 'to taste', 0, 8),
-('rig-seed-00009', 'recipe-seed-0001', 'ing-seed-0008', 'to taste', 0, 9),
-('rig-seed-00010', 'recipe-seed-0002', 'ing-seed-0009', 'to taste', 0, 1),
-('rig-seed-00011', 'recipe-seed-0002', 'ing-seed-0010', 'to taste', 0, 2),
-('rig-seed-00012', 'recipe-seed-0002', 'ing-seed-0011', 'to taste', 0, 3),
-('rig-seed-00013', 'recipe-seed-0002', 'ing-seed-0012', 'to taste', 0, 4),
-('rig-seed-00014', 'recipe-seed-0002', '10', 'to taste', 0, 5),
-('rig-seed-00015', 'recipe-seed-0002', 'ing-seed-0013', 'to taste', 0, 6),
-('rig-seed-00016', 'recipe-seed-0002', '17', 'to taste', 0, 7),
-('rig-seed-00017', 'recipe-seed-0002', '19', 'to taste', 0, 8),
-('rig-seed-00018', 'recipe-seed-0002', 'ing-seed-0014', 'to taste', 0, 9),
-('rig-seed-00019', 'recipe-seed-0002', 'ing-seed-0005', 'to taste', 0, 10),
-('rig-seed-00020', 'recipe-seed-0002', '20', 'to taste', 0, 11),
-('rig-seed-00021', 'recipe-seed-0002', 'ing-seed-0015', 'to taste', 0, 12),
-('rig-seed-00022', 'recipe-seed-0003', 'ing-seed-0016', 'to taste', 0, 1),
-('rig-seed-00023', 'recipe-seed-0003', 'ing-seed-0017', 'to taste', 0, 2),
-('rig-seed-00024', 'recipe-seed-0003', 'ing-seed-0018', 'to taste', 0, 3),
-('rig-seed-00025', 'recipe-seed-0003', 'ing-seed-0019', 'to taste', 0, 4),
-('rig-seed-00026', 'recipe-seed-0003', 'ing-seed-0020', 'to taste', 0, 5),
-('rig-seed-00027', 'recipe-seed-0004', 'ing-seed-0021', 'to taste', 0, 1),
-('rig-seed-00028', 'recipe-seed-0004', 'ing-seed-0003', 'to taste', 0, 2),
-('rig-seed-00029', 'recipe-seed-0004', 'ing-seed-0022', 'to taste', 0, 3),
-('rig-seed-00030', 'recipe-seed-0004', 'ing-seed-0023', 'to taste', 0, 4),
-('rig-seed-00031', 'recipe-seed-0004', 'ing-seed-0024', 'to taste', 0, 5),
-('rig-seed-00032', 'recipe-seed-0004', 'ing-seed-0025', 'to taste', 0, 6),
-('rig-seed-00033', 'recipe-seed-0004', 'ing-seed-0026', 'to taste', 0, 7),
-('rig-seed-00034', 'recipe-seed-0004', 'ing-seed-0027', 'to taste', 0, 8),
-('rig-seed-00035', 'recipe-seed-0004', 'ing-seed-0028', 'to taste', 0, 9),
-('rig-seed-00036', 'recipe-seed-0004', 'ing-seed-0029', 'to taste', 0, 10),
-('rig-seed-00037', 'recipe-seed-0005', 'ing-seed-0030', 'to taste', 0, 1),
-('rig-seed-00038', 'recipe-seed-0005', 'ing-seed-0031', 'to taste', 0, 2),
-('rig-seed-00039', 'recipe-seed-0005', '20', 'to taste', 0, 3),
-('rig-seed-00040', 'recipe-seed-0005', 'ing-seed-0024', 'to taste', 0, 4),
-('rig-seed-00041', 'recipe-seed-0005', 'ing-seed-0032', 'to taste', 0, 5),
-('rig-seed-00042', 'recipe-seed-0005', 'ing-seed-0017', 'to taste', 0, 6),
-('rig-seed-00043', 'recipe-seed-0006', 'ing-seed-0033', 'to taste', 0, 1),
-('rig-seed-00044', 'recipe-seed-0006', '7', 'to taste', 0, 2),
-('rig-seed-00045', 'recipe-seed-0006', '11', 'to taste', 0, 3),
-('rig-seed-00046', 'recipe-seed-0006', 'ing-seed-0034', 'to taste', 0, 4),
-('rig-seed-00047', 'recipe-seed-0006', 'ing-seed-0026', 'to taste', 0, 5),
-('rig-seed-00048', 'recipe-seed-0006', 'ing-seed-0035', 'to taste', 0, 6),
-('rig-seed-00049', 'recipe-seed-0006', 'ing-seed-0025', 'to taste', 0, 7),
-('rig-seed-00050', 'recipe-seed-0006', 'ing-seed-0036', 'to taste', 0, 8),
-('rig-seed-00051', 'recipe-seed-0007', 'ing-seed-0016', 'to taste', 0, 1),
-('rig-seed-00052', 'recipe-seed-0007', 'ing-seed-0037', 'to taste', 0, 2),
-('rig-seed-00053', 'recipe-seed-0007', 'ing-seed-0005', 'to taste', 0, 3),
-('rig-seed-00054', 'recipe-seed-0007', '17', 'to taste', 0, 4),
-('rig-seed-00055', 'recipe-seed-0007', 'ing-seed-0038', 'to taste', 0, 5),
-('rig-seed-00056', 'recipe-seed-0007', '11', 'to taste', 0, 6),
-('rig-seed-00057', 'recipe-seed-0007', 'ing-seed-0039', 'to taste', 0, 7),
-('rig-seed-00058', 'recipe-seed-0007', '20', 'to taste', 0, 8),
-('rig-seed-00059', 'recipe-seed-0007', 'ing-seed-0040', 'to taste', 0, 9),
-('rig-seed-00060', 'recipe-seed-0007', 'ing-seed-0024', 'to taste', 0, 10),
-('rig-seed-00061', 'recipe-seed-0008', 'ing-seed-0041', 'to taste', 0, 1),
-('rig-seed-00062', 'recipe-seed-0008', 'ing-seed-0013', 'to taste', 0, 2),
-('rig-seed-00063', 'recipe-seed-0008', '11', 'to taste', 0, 3),
-('rig-seed-00064', 'recipe-seed-0008', 'ing-seed-0042', 'to taste', 0, 4),
-('rig-seed-00065', 'recipe-seed-0008', '17', 'to taste', 0, 5),
-('rig-seed-00066', 'recipe-seed-0008', '18', 'to taste', 0, 6),
-('rig-seed-00067', 'recipe-seed-0008', 'ing-seed-0014', 'to taste', 0, 7),
-('rig-seed-00068', 'recipe-seed-0008', '20', 'to taste', 0, 8),
-('rig-seed-00069', 'recipe-seed-0008', 'ing-seed-0031', 'to taste', 0, 9),
-('rig-seed-00070', 'recipe-seed-0008', 'ing-seed-0024', 'to taste', 0, 10),
-('rig-seed-00071', 'recipe-seed-0009', 'ing-seed-0043', 'to taste', 0, 1),
-('rig-seed-00072', 'recipe-seed-0009', 'ing-seed-0044', 'to taste', 0, 2),
-('rig-seed-00073', 'recipe-seed-0009', 'ing-seed-0045', 'to taste', 0, 3),
-('rig-seed-00074', 'recipe-seed-0009', 'ing-seed-0046', 'to taste', 0, 4),
-('rig-seed-00075', 'recipe-seed-0009', '18', 'to taste', 0, 5),
-('rig-seed-00076', 'recipe-seed-0009', '17', 'to taste', 0, 6),
-('rig-seed-00077', 'recipe-seed-0009', 'ing-seed-0031', 'to taste', 0, 7),
-('rig-seed-00078', 'recipe-seed-0010', '7', 'to taste', 0, 1),
-('rig-seed-00079', 'recipe-seed-0010', 'ing-seed-0047', 'to taste', 0, 2),
-('rig-seed-00080', 'recipe-seed-0010', 'ing-seed-0048', 'to taste', 0, 3),
-('rig-seed-00081', 'recipe-seed-0010', '17', 'to taste', 0, 4),
-('rig-seed-00082', 'recipe-seed-0010', 'ing-seed-0049', 'to taste', 0, 5),
-('rig-seed-00083', 'recipe-seed-0010', 'ing-seed-0024', 'to taste', 0, 6),
-('rig-seed-00084', 'recipe-seed-0010', 'ing-seed-0050', 'to taste', 0, 7),
-('rig-seed-00085', 'recipe-seed-0010', 'ing-seed-0039', 'to taste', 0, 8),
-('rig-seed-00086', 'recipe-seed-0010', 'ing-seed-0051', 'to taste', 0, 9),
-('rig-seed-00087', 'recipe-seed-0011', 'ing-seed-0052', 'to taste', 0, 1),
-('rig-seed-00088', 'recipe-seed-0011', 'ing-seed-0009', 'to taste', 0, 2),
-('rig-seed-00089', 'recipe-seed-0011', 'ing-seed-0053', 'to taste', 0, 3),
-('rig-seed-00090', 'recipe-seed-0011', '20', 'to taste', 0, 4),
-('rig-seed-00091', 'recipe-seed-0011', 'ing-seed-0045', 'to taste', 0, 5),
-('rig-seed-00092', 'recipe-seed-0011', '11', 'to taste', 0, 6),
-('rig-seed-00093', 'recipe-seed-0012', 'ing-seed-0054', 'to taste', 0, 1),
-('rig-seed-00094', 'recipe-seed-0012', 'ing-seed-0017', 'to taste', 0, 2),
-('rig-seed-00095', 'recipe-seed-0012', 'ing-seed-0013', 'to taste', 0, 3),
-('rig-seed-00096', 'recipe-seed-0012', '11', 'to taste', 0, 4),
-('rig-seed-00097', 'recipe-seed-0012', 'ing-seed-0024', 'to taste', 0, 5),
-('rig-seed-00098', 'recipe-seed-0012', '18', 'to taste', 0, 6),
-('rig-seed-00099', 'recipe-seed-0012', 'ing-seed-0055', 'to taste', 0, 7),
-('rig-seed-00100', 'recipe-seed-0012', 'ing-seed-0005', 'to taste', 0, 8),
-('rig-seed-00101', 'recipe-seed-0012', 'ing-seed-0014', 'to taste', 0, 9),
-('rig-seed-00102', 'recipe-seed-0012', '20', 'to taste', 0, 10),
-('rig-seed-00103', 'recipe-seed-0012', '17', 'to taste', 0, 11),
-('rig-seed-00104', 'recipe-seed-0012', 'ing-seed-0039', 'to taste', 0, 12),
-('rig-seed-00105', 'recipe-seed-0013', 'ing-seed-0009', 'to taste', 0, 1),
-('rig-seed-00106', 'recipe-seed-0013', 'ing-seed-0056', 'to taste', 0, 2),
-('rig-seed-00107', 'recipe-seed-0013', 'ing-seed-0045', 'to taste', 0, 3),
-('rig-seed-00108', 'recipe-seed-0013', 'ing-seed-0015', 'to taste', 0, 4),
-('rig-seed-00109', 'recipe-seed-0013', '19', 'to taste', 0, 5),
-('rig-seed-00110', 'recipe-seed-0013', '20', 'to taste', 0, 6),
-('rig-seed-00111', 'recipe-seed-0013', 'ing-seed-0005', 'to taste', 0, 7),
-('rig-seed-00112', 'recipe-seed-0014', 'ing-seed-0043', 'to taste', 0, 1),
-('rig-seed-00113', 'recipe-seed-0014', '17', 'to taste', 0, 2),
-('rig-seed-00114', 'recipe-seed-0014', '18', 'to taste', 0, 3),
-('rig-seed-00115', 'recipe-seed-0014', 'ing-seed-0014', 'to taste', 0, 4),
-('rig-seed-00116', 'recipe-seed-0014', '11', 'to taste', 0, 5),
-('rig-seed-00117', 'recipe-seed-0014', 'ing-seed-0031', 'to taste', 0, 6),
-('rig-seed-00118', 'recipe-seed-0014', '20', 'to taste', 0, 7),
-('rig-seed-00119', 'recipe-seed-0014', 'ing-seed-0057', 'to taste', 0, 8),
-('rig-seed-00120', 'recipe-seed-0014', 'ing-seed-0058', 'to taste', 0, 9),
-('rig-seed-00121', 'recipe-seed-0015', 'ing-seed-0033', 'to taste', 0, 1),
-('rig-seed-00122', 'recipe-seed-0015', 'ing-seed-0029', 'to taste', 0, 2),
-('rig-seed-00123', 'recipe-seed-0015', '7', 'to taste', 0, 3),
-('rig-seed-00124', 'recipe-seed-0015', 'ing-seed-0023', 'to taste', 0, 4),
-('rig-seed-00125', 'recipe-seed-0015', 'ing-seed-0025', 'to taste', 0, 5),
-('rig-seed-00126', 'recipe-seed-0015', 'ing-seed-0026', 'to taste', 0, 6),
-('rig-seed-00127', 'recipe-seed-0015', 'ing-seed-0024', 'to taste', 0, 7),
-('rig-seed-00128', 'recipe-seed-0015', 'ing-seed-0036', 'to taste', 0, 8),
-('rig-seed-00129', 'recipe-seed-0015', 'ing-seed-0035', 'to taste', 0, 9),
-('rig-seed-00130', 'recipe-seed-0015', 'ing-seed-0059', 'to taste', 0, 10),
-('rig-seed-00131', 'recipe-seed-0015', '20', 'to taste', 0, 11),
-('rig-seed-00132', 'recipe-seed-0015', 'ing-seed-0060', 'to taste', 0, 12),
-('rig-seed-00133', 'recipe-seed-0015', 'ing-seed-0061', 'to taste', 0, 13),
-('rig-seed-00134', 'recipe-seed-0015', '19', 'to taste', 0, 14),
-('rig-seed-00135', 'recipe-seed-0015', 'ing-seed-0014', 'to taste', 0, 15),
-('rig-seed-00136', 'recipe-seed-0016', 'ing-seed-0054', 'to taste', 0, 1),
-('rig-seed-00137', 'recipe-seed-0016', 'ing-seed-0062', 'to taste', 0, 2),
-('rig-seed-00138', 'recipe-seed-0016', 'ing-seed-0063', 'to taste', 0, 3),
-('rig-seed-00139', 'recipe-seed-0016', 'ing-seed-0024', 'to taste', 0, 4),
-('rig-seed-00140', 'recipe-seed-0016', 'ing-seed-0005', 'to taste', 0, 5),
-('rig-seed-00141', 'recipe-seed-0016', '18', 'to taste', 0, 6),
-('rig-seed-00142', 'recipe-seed-0016', '19', 'to taste', 0, 7),
-('rig-seed-00143', 'recipe-seed-0016', 'ing-seed-0055', 'to taste', 0, 8),
-('rig-seed-00144', 'recipe-seed-0016', 'ing-seed-0014', 'to taste', 0, 9),
-('rig-seed-00145', 'recipe-seed-0016', '20', 'to taste', 0, 10),
-('rig-seed-00146', 'recipe-seed-0016', 'ing-seed-0064', 'to taste', 0, 11),
-('rig-seed-00147', 'recipe-seed-0016', '17', 'to taste', 0, 12),
-('rig-seed-00148', 'recipe-seed-0016', 'ing-seed-0039', 'to taste', 0, 13),
-('rig-seed-00149', 'recipe-seed-0017', '7', 'to taste', 0, 1),
-('rig-seed-00150', 'recipe-seed-0017', 'ing-seed-0065', 'to taste', 0, 2),
-('rig-seed-00151', 'recipe-seed-0017', 'ing-seed-0066', 'to taste', 0, 3),
-('rig-seed-00152', 'recipe-seed-0017', 'ing-seed-0001', 'to taste', 0, 4),
-('rig-seed-00153', 'recipe-seed-0017', 'ing-seed-0003', 'to taste', 0, 5),
-('rig-seed-00154', 'recipe-seed-0017', 'ing-seed-0005', 'to taste', 0, 6),
-('rig-seed-00155', 'recipe-seed-0017', '19', 'to taste', 0, 7),
-('rig-seed-00156', 'recipe-seed-0018', 'ing-seed-0067', 'to taste', 0, 1),
-('rig-seed-00157', 'recipe-seed-0018', '17', 'to taste', 0, 2),
-('rig-seed-00158', 'recipe-seed-0018', '19', 'to taste', 0, 3),
-('rig-seed-00159', 'recipe-seed-0018', '18', 'to taste', 0, 4),
-('rig-seed-00160', 'recipe-seed-0018', 'ing-seed-0014', 'to taste', 0, 5),
-('rig-seed-00161', 'recipe-seed-0018', 'ing-seed-0039', 'to taste', 0, 6),
-('rig-seed-00162', 'recipe-seed-0018', 'ing-seed-0042', 'to taste', 0, 7),
-('rig-seed-00163', 'recipe-seed-0018', 'ing-seed-0013', 'to taste', 0, 8),
-('rig-seed-00164', 'recipe-seed-0018', 'ing-seed-0024', 'to taste', 0, 9),
-('rig-seed-00165', 'recipe-seed-0018', '11', 'to taste', 0, 10),
-('rig-seed-00166', 'recipe-seed-0018', 'ing-seed-0044', 'to taste', 0, 11),
-('rig-seed-00167', 'recipe-seed-0018', '20', 'to taste', 0, 12),
-('rig-seed-00168', 'recipe-seed-0018', 'ing-seed-0031', 'to taste', 0, 13),
-('rig-seed-00169', 'recipe-seed-0019', 'ing-seed-0068', 'to taste', 0, 1),
-('rig-seed-00170', 'recipe-seed-0019', '20', 'to taste', 0, 2),
-('rig-seed-00171', 'recipe-seed-0019', 'ing-seed-0069', 'to taste', 0, 3),
-('rig-seed-00172', 'recipe-seed-0019', 'ing-seed-0070', 'to taste', 0, 4),
-('rig-seed-00173', 'recipe-seed-0019', '17', 'to taste', 0, 5),
-('rig-seed-00174', 'recipe-seed-0019', '19', 'to taste', 0, 6),
-('rig-seed-00175', 'recipe-seed-0019', 'ing-seed-0045', 'to taste', 0, 7),
-('rig-seed-00176', 'recipe-seed-0019', 'ing-seed-0051', 'to taste', 0, 8),
-('rig-seed-00177', 'recipe-seed-0019', 'ing-seed-0071', 'to taste', 0, 9),
-('rig-seed-00178', 'recipe-seed-0019', 'ing-seed-0072', 'to taste', 0, 10),
-('rig-seed-00179', 'recipe-seed-0019', 'ing-seed-0073', 'to taste', 0, 11),
-('rig-seed-00180', 'recipe-seed-0020', 'ing-seed-0074', 'to taste', 0, 1),
-('rig-seed-00181', 'recipe-seed-0020', 'ing-seed-0075', 'to taste', 0, 2),
-('rig-seed-00182', 'recipe-seed-0020', '7', 'to taste', 0, 3),
-('rig-seed-00183', 'recipe-seed-0020', 'ing-seed-0076', 'to taste', 0, 4),
-('rig-seed-00184', 'recipe-seed-0020', '12', 'to taste', 0, 5),
-('rig-seed-00185', 'recipe-seed-0020', 'ing-seed-0077', 'to taste', 0, 6),
-('rig-seed-00186', 'recipe-seed-0020', 'ing-seed-0078', 'to taste', 0, 7),
-('rig-seed-00187', 'recipe-seed-0020', 'ing-seed-0079', 'to taste', 0, 8),
-('rig-seed-00188', 'recipe-seed-0020', '11', 'to taste', 0, 9),
-('rig-seed-00189', 'recipe-seed-0020', 'ing-seed-0032', 'to taste', 0, 10),
-('rig-seed-00190', 'recipe-seed-0021', 'ing-seed-0009', 'to taste', 0, 1),
-('rig-seed-00191', 'recipe-seed-0021', '5', 'to taste', 0, 2),
-('rig-seed-00192', 'recipe-seed-0021', 'ing-seed-0080', 'to taste', 0, 3),
-('rig-seed-00193', 'recipe-seed-0021', 'ing-seed-0081', 'to taste', 0, 4),
-('rig-seed-00194', 'recipe-seed-0021', 'ing-seed-0039', 'to taste', 0, 5),
-('rig-seed-00195', 'recipe-seed-0021', 'ing-seed-0024', 'to taste', 0, 6),
-('rig-seed-00196', 'recipe-seed-0021', '19', 'to taste', 0, 7);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `recipe_steps`
---
-
-CREATE TABLE `recipe_steps` (
-  `id` varchar(36) NOT NULL,
-  `recipe_id` varchar(36) NOT NULL,
-  `step_number` int(11) NOT NULL,
-  `title` varchar(200) DEFAULT NULL,
-  `description` text NOT NULL,
-  `image_url` text DEFAULT NULL,
-  `duration_minutes` int(11) DEFAULT NULL,
-  `tip` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `recipe_steps`
---
-
-INSERT INTO `recipe_steps` (`id`, `recipe_id`, `step_number`, `title`, `description`, `image_url`, `duration_minutes`, `tip`) VALUES
-('rst-seed-00001', 'recipe-seed-0001', 1, 'Step 1', 'Bước 1: Sơ chế nguyên liệu. Rau cần cắt khúc dài 5 cm. Bạc hà tước vỏ, cắt lát mỏng.', NULL, NULL, NULL),
-('rst-seed-00002', 'recipe-seed-0001', 2, 'Step 2', 'Bước 2: Nấu nước dùng. Cà chua cắt nhỏ, xào thật mềm. Đổ lượng nước vừa đủ vào nồi đun sôi vài phút. Nêm nước mắm chay và hạt nêm cho vừa ăn.', NULL, NULL, NULL),
-('rst-seed-00003', 'recipe-seed-0001', 3, 'Step 3', 'Bước 3: Nấu canh. Cho bạc hà vào nồi nấu trước 1-2 phút, sau đó cho tiếp rau cần và rong mứt vào nấu chung.', NULL, NULL, NULL),
-('rst-seed-00004', 'recipe-seed-0001', 4, 'Step 4', 'Bước 4: Hoàn thiện. Khi canh vừa sôi, nêm thêm mẻ chua cho vừa khẩu vị. Cho rau thì là hoặc ngò om vào, sau đó tắt bếp.', NULL, NULL, NULL),
-('rst-seed-00005', 'recipe-seed-0002', 1, 'Step 1', 'Bước 1: Sơ chế nguyên liệu. Cá lóc làm sạch, lọc lấy phần phi lê và cắt lát mỏng. Ướp phi lê cá với hạt nêm, tiêu, nước mắm cho thấm gia vị. Phần xương cá rửa sạch.', NULL, NULL, NULL),
-('rst-seed-00006', 'recipe-seed-0002', 2, 'Step 2', 'Bước 2: Nấu nước dùng. Cho xương cá lóc vào nồi hầm cùng 2 lít nước, 1 củ hành tây và vài củ hành tím để lấy nước ngọt. Hầm lửa nhỏ khoảng 30 phút, sau đó lọc bỏ xương. Nêm nếm nước mắm, muối, bột ngọt cho vừa ăn.', NULL, NULL, NULL),
-('rst-seed-00007', 'recipe-seed-0002', 3, 'Step 3', 'Bước 3: Chế biến cá. Phi thơm dầu hành, cho phần phi lê cá lóc đã ướp vào xào săn lại. Cho cá đã xào vào nồi nước dùng.', NULL, NULL, NULL),
-('rst-seed-00008', 'recipe-seed-0002', 4, 'Step 4', 'Bước 4: Hoàn thiện. Cho sợi bánh canh và chả cá vào nồi nấu sôi, nêm nếm lại lần cuối. Múc bánh canh ra tô, rắc thêm hành ngò và tiêu trước khi thưởng thức.', NULL, NULL, NULL),
-('rst-seed-00009', 'recipe-seed-0003', 1, 'Step 1', 'Bước 1: Chế biến món mặn. Làm món cá bớp kho nước dừa theo công thức tiêu chuẩn.', NULL, NULL, NULL),
-('rst-seed-00010', 'recipe-seed-0003', 2, 'Step 2', 'Bước 2: Chế biến món xào. Dưa cà đem xào chín cùng với thịt ba rọi.', NULL, NULL, NULL),
-('rst-seed-00011', 'recipe-seed-0003', 3, 'Step 3', 'Bước 3: Chế biến món canh. Nấu canh chua sử dụng nguyên liệu chính là đầu cá bông lau.', NULL, NULL, NULL),
-('rst-seed-00012', 'recipe-seed-0003', 4, 'Step 4', 'Bước 4: Trình bày. Dọn các món ăn ra mâm, chấm kèm nước mắm cá kho.', NULL, NULL, NULL),
-('rst-seed-00013', 'recipe-seed-0004', 1, 'Step 1', 'Bước 1: Sơ chế. Rửa sạch tất cả các nguyên liệu và để ráo nước. Ớt xiêm xanh giã dập, đầu hành lá đập dập.', NULL, NULL, NULL),
-('rst-seed-00014', 'recipe-seed-0004', 2, 'Step 2', 'Bước 2: Nấu canh. Đun sôi nước, cho đầu cá, ớt xiêm xanh và đầu hành lá vào nấu. Đợi nước sôi lại thì vớt thật sạch bọt.', NULL, NULL, NULL),
-('rst-seed-00015', 'recipe-seed-0004', 3, 'Step 3', 'Bước 3: Nêm nếm. Khi cá đã chín, cho lá me non, bạc hà và giá đỗ vào nấu thêm 2 phút. Nêm nếm gia vị cho vừa khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00016', 'recipe-seed-0004', 4, 'Step 4', 'Bước 4: Hoàn thiện. Cắt nhỏ các loại rau nêm (rau tần dày, húng quế, hành lá, ngò gai, ngò om) cho vào nồi rồi tắt bếp. Múc canh ra tô, ăn kèm với nước mắm mặn dầm ớt xanh.', NULL, NULL, NULL),
-('rst-seed-00017', 'recipe-seed-0005', 1, 'Step 1', 'Bước 1: Sơ chế cá. Cá rửa sạch bằng muối và giấm. Dùng dao cạo da cá cho bớt nhớt tanh rồi rửa sạch lại. Ướp cá với hành, tỏi băm, nước mắm và tiêu trong 30 phút cho ngấm.', NULL, NULL, NULL),
-('rst-seed-00018', 'recipe-seed-0005', 2, 'Step 2', 'Bước 2: Chế biến. Phi thơm hành tỏi băm, cho nước màu (nước hàng) vào chảo rồi thả cá vào lật đều hai mặt cho săn lại.', NULL, NULL, NULL),
-('rst-seed-00019', 'recipe-seed-0005', 3, 'Step 3', 'Bước 3: Kho cá. Đổ nước dừa ngập mặt cá. Khi nước sôi, nêm nếm lại gia vị, thả 2-3 quả ớt vào rồi đậy vung. Kho lửa nhỏ đến khi nước sệt lại và cá thấm vị.', NULL, NULL, NULL),
-('rst-seed-00020', 'recipe-seed-0005', 4, 'Step 4', 'Bước 4: Hoàn thiện. Khi nước kho còn sền sệt thì tắt bếp, rắc thêm tiêu và đầu hành lá lên trên. Gắp cá ra đĩa và thưởng thức cùng cơm nóng.', NULL, NULL, NULL),
-('rst-seed-00021', 'recipe-seed-0006', 1, 'Step 1', 'Bước 1: Sơ chế. Rửa sạch tất cả các nguyên liệu và để ráo nước. Tỏi đem băm nhỏ và phi thơm.', NULL, NULL, NULL),
-('rst-seed-00022', 'recipe-seed-0006', 2, 'Step 2', 'Bước 2: Xào nguyên liệu. Làm nóng nồi, cho mỡ và tỏi vào phi thơm rồi vớt tỏi ra để riêng. Cho cà chua vào xào chín mềm, sau đó thêm cải chua và thịt bò vào xào cùng.', NULL, NULL, NULL),
-('rst-seed-00023', 'recipe-seed-0006', 3, 'Step 3', 'Bước 3: Nấu canh. Đổ nước sôi vào nồi đun lên. Khi nước sôi, nêm nếm lại gia vị cho vừa khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00024', 'recipe-seed-0006', 4, 'Step 4', 'Bước 4: Hoàn thiện. Thả ngò om, rau răm, ngò gai, ngò rí vào nồi. Múc canh ra tô, trang trí thêm rau thơm và rắc tỏi phi lên trên.', NULL, NULL, NULL),
-('rst-seed-00025', 'recipe-seed-0007', 1, 'Step 1', 'Bước 1: Sơ chế. Cá rửa sạch, để ráo. Ướp cá với muối, hạt nêm, 1 muỗng nước mắm và tỏi băm trong khoảng 15 phút.', NULL, NULL, NULL),
-('rst-seed-00026', 'recipe-seed-0007', 2, 'Step 2', 'Bước 2: Thắng nước màu. Bắc chảo hoặc nồi kho lên bếp. Cho dầu ăn và 1 muỗng đường vào, đun lửa nhỏ, lắc nhẹ chảo cho đường tan. Khi đường chuyển màu cánh gián thì cho tiếp 1 muỗng nước mắm vào.', NULL, NULL, NULL),
-('rst-seed-00027', 'recipe-seed-0007', 3, 'Step 3', 'Bước 3: Kho cá. Cho cá đã ướp vào chảo, trở nhẹ tay để cá thấm đều màu và gia vị. Thêm khoảng 2 muỗng nước lọc vào nồi, để lửa liu riu kho trong khoảng 7-10 phút cho cá chín. Nêm nếm lại theo khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00028', 'recipe-seed-0007', 4, 'Step 4', 'Bước 4: Trình bày. Chỉnh lượng nước kho tùy sở thích. Tắt bếp, rắc thêm tiêu, ớt bột và hành lá lên trên.', NULL, NULL, NULL),
-('rst-seed-00029', 'recipe-seed-0008', 1, 'Step 1', 'Bước 1: Sơ chế. Cá hú rửa sạch với muối, rượu và nước ấm, cạo sạch nhớt, cắt khúc vừa ăn.', NULL, NULL, NULL),
-('rst-seed-00030', 'recipe-seed-0008', 2, 'Step 2', 'Bước 2: Ướp cá. Hành, tỏi băm nhỏ. Ướp cá cùng hành tỏi băm và tất cả các gia vị (nước màu, nước mắm, đường, bột ngọt, tiêu, ớt). Để cá ngấm gia vị khoảng 30 phút.', NULL, NULL, NULL),
-('rst-seed-00031', 'recipe-seed-0008', 3, 'Step 3', 'Bước 3: Áp chảo. Cho ít dầu vào nồi, phi thơm hành tỏi. Cho cá vào áp chảo cho săn lại cả hai mặt.', NULL, NULL, NULL),
-('rst-seed-00032', 'recipe-seed-0008', 4, 'Step 4', 'Bước 4: Kho cá. Cho phần nước ướp cá vào nồi. Châm thêm một ít nước nóng và ớt nguyên quả (tùy thích). Kho với lửa nhỏ, nêm nếm lại cho vừa khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00033', 'recipe-seed-0008', 5, 'Step 5', 'Bước 5: Hoàn thành. Khi nước kho cạn sánh lại, thêm hành lá cắt khúc rồi tắt bếp.', NULL, NULL, NULL),
-('rst-seed-00034', 'recipe-seed-0009', 1, 'Step 1', 'Bước 1: Sơ chế. Cá rô đồng làm sạch, để ráo. Gừng, nghệ, hành tăm sơ chế sạch, giã nhỏ hoặc cắt lát.', NULL, NULL, NULL),
-('rst-seed-00035', 'recipe-seed-0009', 2, 'Step 2', 'Bước 2: Ướp cá. Ướp cá rô đồng cùng với đường, nước mắm, ớt, gừng, hành tăm và nghệ trong một lúc cho thấm gia vị.', NULL, NULL, NULL),
-('rst-seed-00036', 'recipe-seed-0009', 3, 'Step 3', 'Bước 3: Kho cá. Đặt nồi cá lên bếp nấu với lửa nhỏ. Kho cho đến khi cá chín mềm và nước kho hơi cạn keo lại là hoàn thành.', NULL, NULL, NULL),
-('rst-seed-00037', 'recipe-seed-0010', 1, 'Step 1', 'Bước 1: Sơ chế thịt. Thịt lợn thái bản to, mỏng (nếu bản dày thì dùng búa dần thịt cho mềm). Ướp thịt với một chút bột nêm.', NULL, NULL, NULL),
-('rst-seed-00038', 'recipe-seed-0010', 2, 'Step 2', 'Bước 2: Nấu nước dùng. Phi thơm hành khô đập dập (hoặc đầu hành trắng) với chút dầu ăn. Cho cà chua cắt nhỏ vào xào nhừ để tạo màu. Thêm sấu và đổ một bát nước lọc vào nồi. Nêm nếm nước mắm, muối, bột canh cho vừa khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00039', 'recipe-seed-0010', 3, 'Step 3', 'Bước 3: Dầm sấu. Khi nước sôi khoảng 1-2 phút cho sấu mềm, dùng thìa dầm nát sấu để tạo độ chua (gia giảm lượng sấu tùy khẩu vị).', NULL, NULL, NULL),
-('rst-seed-00040', 'recipe-seed-0010', 4, 'Step 4', 'Bước 4: Nấu thịt. Mở lửa to cho nước sôi bùng lên. Thả thịt vào quậy đều để thịt nhúng vừa chín tới nhằm giữ độ ngọt mềm. Tắt bếp, rắc hành lá và mùi tàu thái nhỏ lên trên.', NULL, NULL, NULL),
-('rst-seed-00041', 'recipe-seed-0011', 1, 'Step 1', 'Bước 1: Sơ chế cá. Cá lóc làm sạch. Lấy phần đuôi thái miếng mỏng để nấu canh (phần đầu và giữa để dành kho). Ướp cá với bột nêm và tiêu.', NULL, NULL, NULL),
-('rst-seed-00042', 'recipe-seed-0011', 2, 'Step 2', 'Bước 2: Sơ chế rau củ. Gừng thái sợi, tỏi đập dập. Cải xanh rửa sạch, cắt khúc vừa ăn.', NULL, NULL, NULL),
-('rst-seed-00043', 'recipe-seed-0011', 3, 'Step 3', 'Bước 3: Nấu nước dùng. Bắc nồi lên bếp, cho dầu ăn vào phi thơm tỏi và gừng. Đổ lượng nước vừa đủ vào nồi và đun sôi.', NULL, NULL, NULL),
-('rst-seed-00044', 'recipe-seed-0011', 4, 'Step 4', 'Bước 4: Nấu canh. Khi nước sôi, cho rau cải xanh vào đảo đều một vòng. Tiếp tục cho cá lóc đã ướp vào nồi. Khi nước sôi lại và cá chín, nêm nếm gia vị cho vừa miệng rồi tắt bếp. Múc canh ra tô, rắc thêm tiêu lên trên.', NULL, NULL, NULL),
-('rst-seed-00045', 'recipe-seed-0012', 1, 'Step 1', 'Bước 1: Sơ chế và ướp cá. Cá lóc bông làm sạch, cắt khoanh dày khoảng 2.5cm. Ướp cá với hành tím băm, tỏi băm, đường, tương ớt, hạt nêm, bột ngọt, tiêu, dầu ăn và nước mắm. Trộn đều và để khoảng 10 phút cho cá thấm gia vị.', NULL, NULL, NULL),
-('rst-seed-00046', 'recipe-seed-0012', 2, 'Step 2', 'Bước 2: Chiên cá. Bắc chảo sâu lòng lên bếp, cho dầu ăn vào. Khi dầu nóng, lần lượt thả các khoanh cá đã ướp vào chiên trên lửa vừa cho săn đều hai mặt.', NULL, NULL, NULL),
-('rst-seed-00047', 'recipe-seed-0012', 3, 'Step 3', 'Bước 3: Kho cá. Đổ nước dừa xiêm vào chảo cho ngập cá. Nấu đến khi nước dừa sôi thì hạ nhỏ lửa. Để nước sôi liu riu, hớt bọt thường xuyên để nước kho trong. Thỉnh thoảng trở mặt cá để thấm đều gia vị và tránh bị khét.', NULL, NULL, NULL),
-('rst-seed-00048', 'recipe-seed-0012', 4, 'Step 4', 'Bước 4: Hoàn thành. Khi nước dừa cạn bớt và lên màu vàng đẹp mắt, nêm thêm một chút nước mắm cho vừa ăn (món này không cần quá mặn). Cho hành lá cắt khúc và tiêu vào, tắt bếp. Dùng nóng với rau sống và cơm.', NULL, NULL, NULL),
-('rst-seed-00049', 'recipe-seed-0013', 1, 'Step 1', 'Bước 1: Sơ chế. Phi lê cá lóc bóp với muối, rửa sạch. Ướp cá với muối, hạt nêm, tiêu xay và đầu hành lá trong khoảng 30 phút. Gừng thái sợi.', NULL, NULL, NULL),
-('rst-seed-00050', 'recipe-seed-0013', 2, 'Step 2', 'Bước 2: Chuẩn bị bầu. Bầu rửa sạch, dùng dao cắt rời 2/3 theo chiều dọc để tạo thành hình chiếc nắp đậy (khoét bỏ một phần ruột nếu cần).', NULL, NULL, NULL),
-('rst-seed-00051', 'recipe-seed-0013', 3, 'Step 3', 'Bước 3: Hấp cá. Cho phần cá lóc đã ướp vào bên trong quả bầu, rắc thêm hành lá và gừng lên trên. Đậy nắp quả bầu lại.', NULL, NULL, NULL),
-('rst-seed-00052', 'recipe-seed-0013', 4, 'Step 4', 'Bước 4: Hoàn thiện. Đưa quả bầu vào xửng hấp khoảng 15 phút cho đến khi cá chín và bầu mềm. Lấy ra và thưởng thức.', NULL, NULL, NULL),
-('rst-seed-00053', 'recipe-seed-0014', 1, 'Step 1', 'Bước 1: Sơ chế. Cá rô cạo vảy, chẻ bụng bỏ ruột. Rửa cá qua nước giấm để khử nhớt và mùi tanh, xả lại bằng nước sạch, để ráo.', NULL, NULL, NULL),
-('rst-seed-00054', 'recipe-seed-0014', 2, 'Step 2', 'Bước 2: Thắng nước màu. Đặt nồi đất lên bếp, cho một chút dầu ăn và đường vào thắng để lấy màu cánh gián. Khi màu đạt, cho tỏi và ớt băm vào phi thơm.', NULL, NULL, NULL),
-('rst-seed-00055', 'recipe-seed-0014', 3, 'Step 3', 'Bước 3: Kho cá. Cho cá rô vào nồi lăn đều cho săn lại rồi tắt bếp. Nêm nước mắm, nước lọc, bột ngọt và đường vào nồi. Bật bếp trở lại và bắt đầu kho với lửa nhỏ.', NULL, NULL, NULL),
-('rst-seed-00056', 'recipe-seed-0014', 4, 'Step 4', 'Bước 4: Hoàn thành. Trong lúc kho, thỉnh thoảng trở mặt cá và hớt bọt. Khi cá chín, nêm nếm lại gia vị. Để nước kho sắc lại, cho tóp mỡ vào đun sôi bùng lên để tóp mỡ thấm vị rồi tắt bếp. Rắc tiêu và ớt tươi lên trên.', NULL, NULL, NULL),
-('rst-seed-00057', 'recipe-seed-0015', 1, 'Step 1', 'Bước 1: Sơ chế nguyên liệu. Rửa sạch thịt bò và thái lát mỏng. Các loại rau nêm (húng quế, ngò gai, ngò om, hành lá, ngò rí, rau răm), giá đỗ, cà chua rửa sạch và để ráo nước.', NULL, NULL, NULL),
-('rst-seed-00058', 'recipe-seed-0015', 2, 'Step 2', 'Bước 2: Nấu nước dùng. Đun sôi một lượng nước vừa đủ. Cho thịt bò và cà chua vào nấu sôi. Vớt sạch bọt trên bề mặt nếu có.', NULL, NULL, NULL),
-('rst-seed-00059', 'recipe-seed-0015', 3, 'Step 3', 'Bước 3: Nêm nếm. Cho nước cốt chanh (hoặc giấm), đường phèn, muối, bột ngọt vào nồi. Nêm nếm gia vị sao cho có độ chua ngọt hài hòa. Thêm ớt xiêm nếu thích ăn cay.', NULL, NULL, NULL),
-('rst-seed-00060', 'recipe-seed-0015', 4, 'Step 4', 'Bước 4: Hoàn thiện. Tắt bếp, múc canh ra tô. Cho giá đỗ và các loại rau nêm cắt nhỏ vào. Rắc thêm một ít tiêu xay lên trên để tăng hương vị.', NULL, NULL, NULL),
-('rst-seed-00061', 'recipe-seed-0016', 1, 'Step 1', 'Bước 1: Sơ chế. Cá lóc bông lọc bỏ xương, cắt thành khối vuông vừa ăn. Thơm xắt miếng mỏng. Gốc hành lá và ớt băm nhỏ. Phần lá hành xắt khúc.', NULL, NULL, NULL),
-('rst-seed-00062', 'recipe-seed-0016', 2, 'Step 2', 'Bước 2: Ướp cá. Ướp cá lần 1 với hạt nêm, đường, muối, tương ớt, bột ngọt, tiêu. Trộn đều và để 5 phút. Ướp lần 2 với nước màu dừa, nước mắm, dầu ăn. Trộn đều và để thêm 10 phút cho cá ngấm.', NULL, NULL, NULL),
-('rst-seed-00063', 'recipe-seed-0016', 3, 'Step 3', 'Bước 3: Chế biến. Bắc chảo lên bếp, làm nóng dầu ăn. Cho gốc hành và ớt băm vào phi thơm, trút cá vào đảo trên lửa lớn cho săn lại. Khi cá săn, chế nước lọc xăm xắp mặt cá và hạ lửa nhỏ.', NULL, NULL, NULL),
-('rst-seed-00064', 'recipe-seed-0016', 4, 'Step 4', 'Bước 4: Hoàn thiện. Khi nước sốt sôi, cho thơm đã thái vào kho chung. Đảo nhẹ để thơm ngấm sốt. Khi thơm mềm, nêm nếm lại gia vị cho vừa miệng. Thêm hành lá xắt khúc, rắc tiêu, tắt bếp và dọn ra đĩa.', NULL, NULL, NULL),
-('rst-seed-00065', 'recipe-seed-0017', 1, 'Step 1', 'Bước 1: Sơ chế. Cà chua rửa sạch, bổ múi cau. Dứa cắt nhỏ hoặc vắt lấy nước cốt để nấu cho nhanh. Rau cần cắt khúc vừa ăn. Bạc hà tước vỏ, thái vát mỏng.', NULL, NULL, NULL),
-('rst-seed-00066', 'recipe-seed-0017', 2, 'Step 2', 'Bước 2: Chế biến nước dùng. Xào cà chua cho thật mềm nhừ, đổ lượng nước vừa đủ vào nồi đun sôi. (Nếu dùng dứa cắt miếng thì cho vào xào cùng cà chua từ đầu).', NULL, NULL, NULL),
-('rst-seed-00067', 'recipe-seed-0017', 3, 'Step 3', 'Bước 3: Nêm nếm. Cho nước cốt dứa vào nồi (nếu dùng nước cốt). Nêm hạt nêm và muối cho vừa khẩu vị.', NULL, NULL, NULL),
-('rst-seed-00068', 'recipe-seed-0017', 4, 'Step 4', 'Bước 4: Hoàn thiện. Cho rau cần, bạc hà và rong biển vào nồi nấu sôi lại. Tắt bếp và múc ra tô. (Lưu ý: Có thể nấu kèm đậu hũ hoặc chả chay nếu thích).', NULL, NULL, NULL),
-('rst-seed-00069', 'recipe-seed-0018', 1, 'Step 1', 'Bước 1: Sơ chế nguyên liệu. Cá rô làm sạch. Tỏi, hành tím, ớt, đầu hành lá đập dập rồi băm nhuyễn. Nghệ non cạo vỏ, cắt lát mỏng.', NULL, NULL, NULL),
-('rst-seed-00070', 'recipe-seed-0018', 2, 'Step 2', 'Bước 2: Ướp cá. Ướp cá rô với nước mắm, đường, bột ngọt, muối, tiêu, dầu ăn, nước màu (có thể dùng đường thốt nốt thắng caramel). Cho phần hành, tỏi, ớt băm và nghệ thái lát vào trộn đều. Ướp cá trong 20 phút cho thấm gia vị.', NULL, NULL, NULL),
-('rst-seed-00071', 'recipe-seed-0018', 3, 'Step 3', 'Bước 3: Kho cá. Đặt nồi cá lên bếp, đổ thêm một chút nước lọc cho vừa ngập mặt cá. Đun sôi sau đó vặn lửa nhỏ, kho liu riu trong khoảng 15-20 phút cho đến khi nước cạn keo lại.', NULL, NULL, NULL),
-('rst-seed-00072', 'recipe-seed-0018', 4, 'Step 4', 'Bước 4: Hoàn thành. Tắt bếp, ăn kèm với rau luộc hoặc rau sống.', NULL, NULL, NULL),
-('rst-seed-00073', 'recipe-seed-0019', 1, 'Step 1', 'Bước 1: Sơ chế. Rửa cá với nước muối pha loãng, làm sạch máu và tủy ở xương sống để loại bỏ hoàn toàn mùi tanh (không dùng giấm hay rượu để giữ độ tươi). Cắt cá thành khúc vừa ăn.', NULL, NULL, NULL),
-('rst-seed-00074', 'recipe-seed-0019', 2, 'Step 2', 'Bước 2: Ướp cá. Ướp cá với sả, gừng, hành khô băm nhỏ, tiêu, muối và một chút nước mắm. Đợi 30 phút cho cá ngấm gia vị và săn chắc lại.', NULL, NULL, NULL),
-('rst-seed-00075', 'recipe-seed-0019', 3, 'Step 3', 'Bước 3: Chế biến thịt. Thịt ba chỉ thái miếng, đảo xém cạnh trên chảo rồi vớt ra lót dưới đáy nồi kho. Dùng mỡ lợn phi thơm một phần hành khô, sả, gừng.', NULL, NULL, NULL),
-('rst-seed-00076', 'recipe-seed-0019', 4, 'Step 4', 'Bước 4: Kho cá. Xếp cá lên trên lớp thịt ba chỉ. Thắng đường thốt nốt tạo màu cánh gián rồi đổ nước (hoặc nước dừa) vào đun sôi. Rót nước màu ngập mặt cá. Đun vừa lửa trong 20 phút, sau đó giảm lửa liu riu kho thêm 1 giờ.', NULL, NULL, NULL),
-('rst-seed-00077', 'recipe-seed-0019', 5, 'Step 5', 'Bước 5: Hoàn thiện. Tắt bếp. (Bí quyết: Cá đun lại lần 2 sẽ ngấm gia vị và thịt keo lại ngon hơn).', NULL, NULL, NULL),
-('rst-seed-00078', 'recipe-seed-0020', 1, 'Step 1', 'Bước 1: Sơ chế nguyên liệu. Rau giá, rau muống, bắp chuối bào rửa sạch, để ráo. Cà chua cắt múi cau. Đậu hũ cắt miếng vuông, chiên vàng. Rau om cắt nhỏ. Thịt bắp bò thái mỏng.', NULL, NULL, NULL),
-('rst-seed-00079', 'recipe-seed-0020', 2, 'Step 2', 'Bước 2: Xào thịt bò. Phi thơm tỏi băm, cho thịt bò vào xào sơ cho săn lại rồi gắp ra đĩa để riêng.', NULL, NULL, NULL),
-('rst-seed-00080', 'recipe-seed-0020', 3, 'Step 3', 'Bước 3: Nấu nước dùng. Tiếp tục dùng nồi xào thịt bò, cho cà chua vào xào để tạo màu. Đổ nước lượng vừa đủ vào nồi đun sôi. Lấy nước cốt me hòa vào nồi.', NULL, NULL, NULL),
-('rst-seed-00081', 'recipe-seed-0020', 4, 'Step 4', 'Bước 4: Nấu canh. Nước sôi, thả đậu hũ và các loại rau (rau muống, bắp chuối) vào. Nêm nếm muối, đường cho vừa vị chua ngọt. Khi nước sôi lại, cho thịt bò và giá vào, tắt bếp ngay để thịt không bị dai.', NULL, NULL, NULL),
-('rst-seed-00082', 'recipe-seed-0020', 5, 'Step 5', 'Bước 5: Hoàn thiện. Nêm thêm chút nước mắm cho dậy mùi. Múc canh ra tô, rắc rau om, tỏi phi và tiêu xay lên trên.', NULL, NULL, NULL),
-('rst-seed-00083', 'recipe-seed-0021', 1, 'Step 1', 'Bước 1: Sơ chế. Cá lóc phi lê rửa sạch, dùng giấy thấm thật khô nước, cắt thành miếng vừa ăn. Hành lá cắt nhuyễn.', NULL, NULL, NULL),
-('rst-seed-00084', 'recipe-seed-0021', 2, 'Step 2', 'Bước 2: Pha bột. Cho vào tô lòng đỏ trứng gà, bột mì, một ít muối, dầu ăn và hành lá. Trộn đều, từ từ chế thêm nước lọc vào khuấy đến khi hỗn hợp bột có độ sánh sền sệt vừa phải.', NULL, NULL, NULL),
-('rst-seed-00085', 'recipe-seed-0021', 3, 'Step 3', 'Bước 3: Tẩm bột chiên. Thả từng miếng cá vào tô bột ướt, sau đó lăn qua một lớp bột chiên giòn khô. Đun nóng chảo dầu, thả cá vào chiên cho đến khi vàng giòn đều hai mặt.', NULL, NULL, NULL),
-('rst-seed-00086', 'recipe-seed-0021', 4, 'Step 4', 'Bước 4: Hoàn thành. Vớt cá ra giấy thấm dầu để ráo. Dùng nóng kèm với salad và tương ớt chua ngọt.', NULL, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `scan_sessions`
---
-
+DROP TABLE IF EXISTS `scan_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `scan_sessions` (
   `id` varchar(36) NOT NULL,
   `user_id` varchar(64) NOT NULL,
@@ -584,111 +228,35 @@ CREATE TABLE `scan_sessions` (
   `vision_provider` varchar(50) NOT NULL,
   `raw_detections` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`raw_detections`)),
   `matched_ingredients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`matched_ingredients`)),
-  `created_at` datetime NOT NULL
+  `ai_suggestion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`ai_suggestion`)),
+  `recipe_suggestion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`recipe_suggestion`)),
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_scan_sessions_created_at` (`created_at`),
+  KEY `ix_scan_sessions_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Đang đổ dữ liệu cho bảng `scan_sessions`
+-- Dumping data for table `scan_sessions`
 --
 
-INSERT INTO `scan_sessions` (`id`, `user_id`, `image_name`, `vision_provider`, `raw_detections`, `matched_ingredients`, `created_at`) VALUES
-('51573087-9813-4c13-a3be-018690d6c738', 'mobile-demo-user', 'scaled_8415bbdd-a486-4276-a7be-6b77a0132e25629526932087736803.jpg', 'service_demo', '[{\"name\": \"ca chua\", \"confidence\": 0.96}, {\"name\": \"hanh tay\", \"confidence\": 0.9}, {\"name\": \"trung ga\", \"confidence\": 0.87}, {\"name\": \"toi\", \"confidence\": 0.73}]', '[{\"detected_name\": \"ca chua\", \"normalized_name\": \"ca chua\", \"confidence\": 0.96, \"matched\": true, \"ingredient\": {\"id\": \"7\", \"name\": \"C\\u00e0 chua\", \"icon\": \"\\ud83c\\udf45\", \"category_id\": \"c3\", \"image_url\": \"images/ca_chua.jpg\", \"is_popular\": true, \"aliases\": [\"tomato\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"hanh tay\", \"normalized_name\": \"hanh tay\", \"confidence\": 0.9, \"matched\": true, \"ingredient\": {\"id\": \"10\", \"name\": \"H\\u00e0nh t\\u00e2y\", \"icon\": \"\\ud83e\\uddc5\", \"category_id\": \"c3\", \"image_url\": \"images/hanh_tay.jpg\", \"is_popular\": true, \"aliases\": [\"onion\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"trung ga\", \"normalized_name\": \"trung ga\", \"confidence\": 0.87, \"matched\": true, \"ingredient\": {\"id\": \"5\", \"name\": \"Tr\\u1ee9ng g\\u00e0\", \"icon\": \"\\ud83e\\udd5a\", \"category_id\": \"c2\", \"image_url\": \"images/trung.jpg\", \"is_popular\": true, \"aliases\": [\"tr\\u1ee9ng\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c2\", \"slug\": \"trung-sua\", \"name\": \"Tr\\u1ee9ng s\\u1eefa\", \"icon\": \"\\ud83e\\udd5a\", \"sort_order\": 2}}}, {\"detected_name\": \"toi\", \"normalized_name\": \"toi\", \"confidence\": 0.73, \"matched\": true, \"ingredient\": {\"id\": \"11\", \"name\": \"T\\u1ecfi\", \"icon\": \"\\ud83e\\uddc4\", \"category_id\": \"c3\", \"image_url\": \"images/toi.jpg\", \"is_popular\": true, \"aliases\": [\"garlic\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}]', '2026-03-17 14:52:38'),
-('68e48ed9-be10-4678-8351-ee72aa482702', 'mobile-demo-user', 'scaled_f6a3d218-4c60-459c-8b21-72dd57c78baa3242634136507544555.jpg', 'service_demo', '[{\"name\": \"ca chua\", \"confidence\": 0.96}, {\"name\": \"hanh tay\", \"confidence\": 0.9}, {\"name\": \"trung ga\", \"confidence\": 0.87}, {\"name\": \"toi\", \"confidence\": 0.73}]', '[{\"detected_name\": \"ca chua\", \"normalized_name\": \"ca chua\", \"confidence\": 0.96, \"matched\": true, \"ingredient\": {\"id\": \"7\", \"name\": \"C\\u00e0 chua\", \"icon\": \"\\ud83c\\udf45\", \"category_id\": \"c3\", \"image_url\": \"images/ca_chua.jpg\", \"is_popular\": true, \"aliases\": [\"tomato\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"hanh tay\", \"normalized_name\": \"hanh tay\", \"confidence\": 0.9, \"matched\": true, \"ingredient\": {\"id\": \"10\", \"name\": \"H\\u00e0nh t\\u00e2y\", \"icon\": \"\\ud83e\\uddc5\", \"category_id\": \"c3\", \"image_url\": \"images/hanh_tay.jpg\", \"is_popular\": true, \"aliases\": [\"onion\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"trung ga\", \"normalized_name\": \"trung ga\", \"confidence\": 0.87, \"matched\": true, \"ingredient\": {\"id\": \"5\", \"name\": \"Tr\\u1ee9ng g\\u00e0\", \"icon\": \"\\ud83e\\udd5a\", \"category_id\": \"c2\", \"image_url\": \"images/trung.jpg\", \"is_popular\": true, \"aliases\": [\"tr\\u1ee9ng\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c2\", \"slug\": \"trung-sua\", \"name\": \"Tr\\u1ee9ng s\\u1eefa\", \"icon\": \"\\ud83e\\udd5a\", \"sort_order\": 2}}}, {\"detected_name\": \"toi\", \"normalized_name\": \"toi\", \"confidence\": 0.73, \"matched\": true, \"ingredient\": {\"id\": \"11\", \"name\": \"T\\u1ecfi\", \"icon\": \"\\ud83e\\uddc4\", \"category_id\": \"c3\", \"image_url\": \"images/toi.jpg\", \"is_popular\": true, \"aliases\": [\"garlic\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}]', '2026-03-18 12:37:02'),
-('771dbb0d-0e80-48a9-a672-4cc1c2bc4832', 'mobile-demo-user', 'scan_mock.jpg', 'service_demo', '[{\"name\": \"ca chua\", \"confidence\": 0.96}, {\"name\": \"hanh tay\", \"confidence\": 0.9}, {\"name\": \"trung ga\", \"confidence\": 0.87}, {\"name\": \"toi\", \"confidence\": 0.73}]', '[{\"detected_name\": \"ca chua\", \"normalized_name\": \"ca chua\", \"confidence\": 0.96, \"matched\": true, \"ingredient\": {\"id\": \"7\", \"name\": \"C\\u00e0 chua\", \"icon\": \"\\ud83c\\udf45\", \"category_id\": \"c3\", \"image_url\": \"images/ca_chua.jpg\", \"is_popular\": true, \"aliases\": [\"tomato\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"hanh tay\", \"normalized_name\": \"hanh tay\", \"confidence\": 0.9, \"matched\": true, \"ingredient\": {\"id\": \"10\", \"name\": \"H\\u00e0nh t\\u00e2y\", \"icon\": \"\\ud83e\\uddc5\", \"category_id\": \"c3\", \"image_url\": \"images/hanh_tay.jpg\", \"is_popular\": true, \"aliases\": [\"onion\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"trung ga\", \"normalized_name\": \"trung ga\", \"confidence\": 0.87, \"matched\": true, \"ingredient\": {\"id\": \"5\", \"name\": \"Tr\\u1ee9ng g\\u00e0\", \"icon\": \"\\ud83e\\udd5a\", \"category_id\": \"c2\", \"image_url\": \"images/trung.jpg\", \"is_popular\": true, \"aliases\": [\"tr\\u1ee9ng\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c2\", \"slug\": \"trung-sua\", \"name\": \"Tr\\u1ee9ng s\\u1eefa\", \"icon\": \"\\ud83e\\udd5a\", \"sort_order\": 2}}}, {\"detected_name\": \"toi\", \"normalized_name\": \"toi\", \"confidence\": 0.73, \"matched\": true, \"ingredient\": {\"id\": \"11\", \"name\": \"T\\u1ecfi\", \"icon\": \"\\ud83e\\uddc4\", \"category_id\": \"c3\", \"image_url\": \"images/toi.jpg\", \"is_popular\": true, \"aliases\": [\"garlic\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}]', '2026-03-17 14:51:43'),
-('f77da26c-910a-4a6a-a891-5b60dd2c2018', 'mobile-demo-user', 'scaled_e6175817-02c6-4115-a20b-3fde3ed750dd1224525859799777941.jpg', 'service_demo', '[{\"name\": \"ca chua\", \"confidence\": 0.96}, {\"name\": \"hanh tay\", \"confidence\": 0.9}, {\"name\": \"trung ga\", \"confidence\": 0.87}, {\"name\": \"toi\", \"confidence\": 0.73}]', '[{\"detected_name\": \"ca chua\", \"normalized_name\": \"ca chua\", \"confidence\": 0.96, \"matched\": true, \"ingredient\": {\"id\": \"7\", \"name\": \"C\\u00e0 chua\", \"icon\": \"\\ud83c\\udf45\", \"category_id\": \"c3\", \"image_url\": \"images/ca_chua.jpg\", \"is_popular\": true, \"aliases\": [\"tomato\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"hanh tay\", \"normalized_name\": \"hanh tay\", \"confidence\": 0.9, \"matched\": true, \"ingredient\": {\"id\": \"10\", \"name\": \"H\\u00e0nh t\\u00e2y\", \"icon\": \"\\ud83e\\uddc5\", \"category_id\": \"c3\", \"image_url\": \"images/hanh_tay.jpg\", \"is_popular\": true, \"aliases\": [\"onion\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}, {\"detected_name\": \"trung ga\", \"normalized_name\": \"trung ga\", \"confidence\": 0.87, \"matched\": true, \"ingredient\": {\"id\": \"5\", \"name\": \"Tr\\u1ee9ng g\\u00e0\", \"icon\": \"\\ud83e\\udd5a\", \"category_id\": \"c2\", \"image_url\": \"images/trung.jpg\", \"is_popular\": true, \"aliases\": [\"tr\\u1ee9ng\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c2\", \"slug\": \"trung-sua\", \"name\": \"Tr\\u1ee9ng s\\u1eefa\", \"icon\": \"\\ud83e\\udd5a\", \"sort_order\": 2}}}, {\"detected_name\": \"toi\", \"normalized_name\": \"toi\", \"confidence\": 0.73, \"matched\": true, \"ingredient\": {\"id\": \"11\", \"name\": \"T\\u1ecfi\", \"icon\": \"\\ud83e\\uddc4\", \"category_id\": \"c3\", \"image_url\": \"images/toi.jpg\", \"is_popular\": true, \"aliases\": [\"garlic\"], \"created_at\": \"2026-03-17T20:12:55\", \"category\": {\"id\": \"c3\", \"slug\": \"rau-cu\", \"name\": \"Rau c\\u1ee7\", \"icon\": \"\\ud83e\\udd6c\", \"sort_order\": 3}}}]', '2026-03-17 15:03:44');
+LOCK TABLES `scan_sessions` WRITE;
+/*!40000 ALTER TABLE `scan_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `scan_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Chỉ mục cho các bảng đã đổ
+-- Dumping routines for database 'nckh'
 --
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
---
--- Chỉ mục cho bảng `ingredients`
---
-ALTER TABLE `ingredients`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ix_ingredients_name` (`name`),
-  ADD KEY `ix_ingredients_is_popular` (`is_popular`),
-  ADD KEY `ix_ingredients_category_id` (`category_id`);
-
---
--- Chỉ mục cho bảng `ingredient_categories`
---
-ALTER TABLE `ingredient_categories`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ix_ingredient_categories_slug` (`slug`);
-
---
--- Chỉ mục cho bảng `pantry_items`
---
-ALTER TABLE `pantry_items`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uq_pantry_user_ingredient` (`user_id`,`ingredient_id`),
-  ADD KEY `ix_pantry_items_created_at` (`created_at`),
-  ADD KEY `ix_pantry_items_user_id` (`user_id`),
-  ADD KEY `ix_pantry_items_ingredient_id` (`ingredient_id`);
-
---
--- Chỉ mục cho bảng `recipes`
---
-ALTER TABLE `recipes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_recipes_difficulty` (`difficulty`),
-  ADD KEY `ix_recipes_is_featured` (`is_featured`),
-  ADD KEY `ix_recipes_name` (`name`);
-
---
--- Chỉ mục cho bảng `recipe_ingredients`
---
-ALTER TABLE `recipe_ingredients`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_recipe_ingredients_recipe_id` (`recipe_id`),
-  ADD KEY `ix_recipe_ingredients_ingredient_id` (`ingredient_id`);
-
---
--- Chỉ mục cho bảng `recipe_steps`
---
-ALTER TABLE `recipe_steps`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_recipe_steps_recipe_id` (`recipe_id`);
-
---
--- Chỉ mục cho bảng `scan_sessions`
---
-ALTER TABLE `scan_sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_scan_sessions_user_id` (`user_id`),
-  ADD KEY `ix_scan_sessions_created_at` (`created_at`);
-
---
--- Các ràng buộc cho các bảng đã đổ
---
-
---
--- Các ràng buộc cho bảng `ingredients`
---
-ALTER TABLE `ingredients`
-  ADD CONSTRAINT `ingredients_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `ingredient_categories` (`id`);
-
---
--- Các ràng buộc cho bảng `pantry_items`
---
-ALTER TABLE `pantry_items`
-  ADD CONSTRAINT `pantry_items_ibfk_1` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`id`) ON DELETE CASCADE;
-
---
--- Các ràng buộc cho bảng `recipe_ingredients`
---
-ALTER TABLE `recipe_ingredients`
-  ADD CONSTRAINT `recipe_ingredients_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `recipe_ingredients_ibfk_2` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`id`) ON DELETE SET NULL;
-
---
--- Các ràng buộc cho bảng `recipe_steps`
---
-ALTER TABLE `recipe_steps`
-  ADD CONSTRAINT `recipe_steps_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE;
-COMMIT;
-
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-06-27 22:27:53

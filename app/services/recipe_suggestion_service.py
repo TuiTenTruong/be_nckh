@@ -4,6 +4,8 @@ from difflib import SequenceMatcher
 
 from app.repositories.recipe_repository import RecipeRepository
 from app.dto.ai_service_dto import AIServiceDTO
+from app.clients.ai_service_client import AIServiceClient
+from app.utils.media_url import resolve_image_url
 import logging
 
 logger = logging.getLogger(__name__)
@@ -57,8 +59,65 @@ class RecipeSuggestionService:
         logger.info(f"Generating suggestion for ingredients: {user_ingredients}")
         
         # Step 1: Query recipes từ database
-        # Có thể optimize bằng cách chỉ lấy recipes có chứa ít nhất 1 ingredient
         recipes = self._query_recipes(user_ingredients, preferences, limit_recipes)
+        
+        # Thử gọi AI Service (food-ai-service) RAG trước
+        if recipes:
+            try:
+                logger.info("Attempting to get suggestion from AI Service RAG...")
+                recipes_payload = []
+                for r in recipes:
+                    ingredients_list = []
+                    for ri in r.recipe_ingredients:
+                        if ri.ingredient:
+                            ingredients_list.append({
+                                "name": ri.ingredient.name,
+                                "quantity": ri.quantity or '',
+                                "unit": ri.unit or '',
+                            })
+                    
+                    steps_text = ""
+                    try:
+                        steps_list = []
+                        for step in r.steps.order_by('step_number'):
+                            step_title = f"**{step.title}**" if step.title else ""
+                            step_content = f"Bước {step.step_number}: {step_title}{step.description}"
+                            if step.tip:
+                                step_content += f" (Mẹo: {step.tip})"
+                            steps_list.append(step_content)
+                        steps_text = "\n".join(steps_list)
+                    except Exception:
+                        steps_text = ""
+
+                    recipes_payload.append({
+                        "id": str(r.id),
+                        "name": r.name,
+                        "description": r.description or '',
+                        "steps": steps_text,
+                        "ingredients": ingredients_list,
+                        "image_url": resolve_image_url(r.image_url, name=r.name),
+                        "cook_time_minutes": r.cook_time_minutes,
+                        "difficulty": r.difficulty,
+                        "servings": r.servings
+                    })
+                
+                payload = {
+                    "user_ingredients": user_ingredients,
+                    "recipes": recipes_payload,
+                    "top_k": 5,
+                    "preferences": preferences or {}
+                }
+                
+                client = AIServiceClient()
+                ai_response = client.suggest_recipe(payload)
+                
+                # Trả về kết quả từ AI nếu hợp lệ
+                if ai_response and (ai_response.get("best_recipe") or ai_response.get("recipe_id")):
+                    logger.info("Successfully got suggestion from AI Service RAG!")
+                    return ai_response
+                    
+            except Exception as e:
+                logger.warning(f"AI Service RAG suggestion failed: {e}. Falling back to DB matching.")
         
         if not recipes:
             logger.warning("No recipes found in database")
@@ -236,7 +295,7 @@ class RecipeSuggestionService:
             "matched_ingredients": best["matched_recipe_ingredients"],
             "matched_count": best["matched_count"],
             "total_ingredients": best["matched_count"] + best["missing_count"],
-            "image_url": best_recipe.image_url,
+            "image_url": resolve_image_url(best_recipe.image_url, name=best_recipe.name),
             "cook_time_minutes": best_recipe.cook_time_minutes,
             "difficulty": best_recipe.difficulty,
             "servings": best_recipe.servings
@@ -250,7 +309,9 @@ class RecipeSuggestionService:
                 "name": str(recipe.name or "").strip(),
                 "matched_count": candidate["matched_count"],
                 "missing_count": candidate["missing_count"],
-                "image_url": recipe.image_url,
+                "matched_ingredients": candidate["matched_recipe_ingredients"],
+                "missing_ingredients": candidate["missing_ingredients"],
+                "image_url": resolve_image_url(recipe.image_url, name=recipe.name),
                 "cook_time_minutes": recipe.cook_time_minutes,
                 "difficulty": recipe.difficulty,
                 "description": recipe.description
@@ -268,7 +329,7 @@ class RecipeSuggestionService:
                 f"Tìm thấy công thức khớp {best['matched_count']}/"
                 f"{best['matched_count'] + best['missing_count']} nguyên liệu cần thiết."
             ),
-            "image_url": best_recipe.image_url,
+            "image_url": resolve_image_url(best_recipe.image_url, name=best_recipe.name),
             "cook_time_minutes": best_recipe.cook_time_minutes,
             "difficulty": best_recipe.difficulty,
             "servings": best_recipe.servings,

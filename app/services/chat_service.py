@@ -21,6 +21,19 @@ class ChatService:
     @staticmethod
     def _get_ai_endpoint():
         """Get AI service chat endpoint"""
+        base_url = (
+            current_app.config.get('AI_SERVICE_BASE_URL')
+            or os.getenv('AI_SERVICE_BASE_URL')
+        )
+
+        if base_url:
+            base = base_url.rstrip('/')
+            if base.endswith('/api/ai'):
+                return f"{base}/chat"
+            if base.endswith('/api/ai/chat'):
+                return base
+            return f"{base}/api/ai/chat"
+
         analyze_endpoint = (
             current_app.config.get('AI_SERVICE_ENDPOINT')
             or os.getenv('AI_SERVICE_ENDPOINT')
@@ -29,17 +42,7 @@ class ChatService:
         if analyze_endpoint:
             return analyze_endpoint.replace('/analyze-image', '/chat')
 
-        base_url = (
-            current_app.config.get('AI_SERVICE_BASE_URL')
-            or os.getenv('AI_SERVICE_BASE_URL')
-            or 'http://127.0.0.1:8000'
-        ).rstrip('/')
-
-        if base_url.endswith('/api/ai'):
-            return f"{base_url}/chat"
-        if base_url.endswith('/api/ai/chat'):
-            return base_url
-        return f"{base_url}/api/ai/chat"
+        return 'http://127.0.0.1:8000/api/ai/chat'
     
     @staticmethod
     def _now_iso():
@@ -59,7 +62,8 @@ class ChatService:
                     if ri.ingredient:
                         ingredients.append({
                             "name": ri.ingredient.name,
-                            "amount": ri.amount or ''
+                            "quantity": ri.quantity or '',
+                            "unit": ri.unit or '',
                         })
                 
                 # Get steps as text
@@ -170,8 +174,9 @@ class ChatService:
         session['messages'].append(user_message)
 
         # Call AI service
+        suggested_recipes = []
         try:
-            assistant_content = cls._call_ai_chat(
+            assistant_content, suggested_recipes = cls._call_ai_chat(
                 session_id=session_id,
                 message=content.strip(),
                 user_pantry=user_pantry
@@ -188,6 +193,7 @@ class ChatService:
             'id': str(uuid.uuid4()),
             'role': 'assistant',
             'content': assistant_content,
+            'suggested_recipes': suggested_recipes,
             'created_at': cls._now_iso()
         }
         session['messages'].append(assistant_message)
@@ -204,7 +210,8 @@ class ChatService:
     @classmethod
     def _call_ai_chat(cls, session_id, message, user_pantry=None):
         """
-        Call food-ai-service chat endpoint
+        Call food-ai-service chat endpoint.
+        Returns tuple of (assistant_content, suggested_recipes).
         """
         endpoint = f"{cls._get_ai_endpoint()}/sessions/{session_id}/messages"
         
@@ -235,7 +242,9 @@ class ChatService:
             if parsed.get('success'):
                 data = parsed.get('data', {})
                 assistant_msg = data.get('assistant_message', {})
-                return assistant_msg.get('content', 'Không có phản hồi từ AI')
+                content = assistant_msg.get('content', 'Không có phản hồi từ AI')
+                suggested_recipes = assistant_msg.get('suggested_recipes') or data.get('suggested_recipes', [])
+                return content, suggested_recipes
             else:
                 raise RuntimeError(parsed.get('message', 'AI service error'))
         
@@ -251,7 +260,9 @@ class ChatService:
                 if parsed.get('success'):
                     data = parsed.get('data', {})
                     assistant_msg = data.get('assistant_message', {})
-                    return assistant_msg.get('content', 'Không có phản hồi từ AI')
+                    content = assistant_msg.get('content', 'Không có phản hồi từ AI')
+                    suggested_recipes = assistant_msg.get('suggested_recipes') or data.get('suggested_recipes', [])
+                    return content, suggested_recipes
             
             raise RuntimeError(f'AI Service HTTP error: {exc.code}')
         except (urlerror.URLError, TimeoutError) as exc:

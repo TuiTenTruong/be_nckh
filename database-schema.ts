@@ -148,21 +148,21 @@ export type DifficultyLevel = 'De' | 'Trung binh' | 'Kho';
 export interface RecipeIngredientsTable {
   id: string;                    // UUID, PRIMARY KEY
   recipe_id: string;             // UUID, FK -> recipes.id, NOT NULL
-  ingredient_id: string | null;  // UUID, FK -> ingredients.id, nullable (co the la nguyen lieu tu do)
-  ingredient_name: string;       // VARCHAR(100), NOT NULL - Ten hien thi
-  amount: string;                // VARCHAR(50), NOT NULL - vd: '500g', '2 cu'
-  is_optional: boolean;          // BOOLEAN, DEFAULT false - Nguyen lieu tuy chon
-  sort_order: number;            // INTEGER, DEFAULT 0
+  ingredient_id: string | null;  // UUID, FK -> ingredients.id
+  quantity: string;              // VARCHAR(50) - vd: '500', '3'
+  unit: string;                  // VARCHAR(50) - vd: 'gram', 'quả'
+  is_optional: boolean;
+  sort_order: number;
 }
 // SQL:
 // CREATE TABLE recipe_ingredients (
-//   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-//   recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
-//   ingredient_id UUID REFERENCES ingredients(id) ON DELETE SET NULL,
-//   ingredient_name VARCHAR(100) NOT NULL,
-//   amount VARCHAR(50) NOT NULL,
-//   is_optional BOOLEAN DEFAULT false,
-//   sort_order INTEGER DEFAULT 0
+//   id VARCHAR(36) PRIMARY KEY,
+//   recipe_id VARCHAR(36) NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+//   ingredient_id VARCHAR(36) REFERENCES ingredients(id) ON DELETE SET NULL,
+//   quantity VARCHAR(50) NOT NULL DEFAULT '',
+//   unit VARCHAR(50) NOT NULL DEFAULT '',
+//   is_optional TINYINT(1) DEFAULT 0,
+//   sort_order INT DEFAULT 0
 // );
 // CREATE INDEX idx_recipe_ingredients_recipe ON recipe_ingredients(recipe_id);
 // CREATE INDEX idx_recipe_ingredients_ingredient ON recipe_ingredients(ingredient_id);

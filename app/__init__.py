@@ -1,8 +1,12 @@
 """Flask application factory"""
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from be/.env for local development before importing config.
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(env_path)
 
 from flask import Flask
-from dotenv import load_dotenv
 from app.extensions import db, cors, swagger
 from app.config import config
 from app.api.ingredient_routes import ingredient_bp, category_bp
@@ -16,11 +20,8 @@ from app.errors.handlers import register_error_handlers
 
 def create_app(config_name='development'):
     """Create and configure Flask application"""
-    # Load environment variables from be/.env for local development.
-    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
-    load_dotenv(env_path)
-
-    app = Flask(__name__)
+    static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+    app = Flask(__name__, static_folder=static_dir, static_url_path='/static')
     
     # Load configuration
     app.config.from_object(config[config_name])

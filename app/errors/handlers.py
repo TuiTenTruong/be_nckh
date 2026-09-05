@@ -1,5 +1,5 @@
 """API error handlers"""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 
 def register_error_handlers(app):
@@ -8,6 +8,9 @@ def register_error_handlers(app):
     @app.errorhandler(404)
     def not_found(error):
         """Handle 404 errors"""
+        if request.path.startswith('/static/'):
+            return error.get_response()
+
         return jsonify({
             'success': False,
             'message': 'Resource not found',

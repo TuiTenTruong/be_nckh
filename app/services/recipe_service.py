@@ -3,6 +3,7 @@ import uuid
 from app.extensions import db
 from app.models.recipe import Recipe
 from app.models.recipeIngredient import RecipeIngredient
+from app.utils.ingredient_amount import parse_legacy_amount
 from app.models.recipeStep import RecipeStep
 from app.models.ingredient import Ingredient
 
@@ -161,30 +162,46 @@ class RecipeService:
         return [item.to_dict(include_ingredient=True) for item in items]
 
     @staticmethod
-    def add_recipe_ingredient(recipe_id, ingredient_name, amount, ingredient_id=None, is_optional=False, sort_order=0):
+    def add_recipe_ingredient(
+        recipe_id,
+        ingredient_id,
+        quantity,
+        unit='',
+        is_optional=False,
+        sort_order=0,
+    ):
         """Add one ingredient row to recipe_ingredients"""
         recipe = Recipe.query.get(recipe_id)
         if not recipe:
             raise ValueError(f"Recipe '{recipe_id}' not found")
 
-        if ingredient_id:
-            ingredient = Ingredient.query.get(ingredient_id)
-            if not ingredient:
-                raise ValueError(f"Ingredient '{ingredient_id}' not found")
+        ingredient = Ingredient.query.get(ingredient_id)
+        if not ingredient:
+            raise ValueError(f"Ingredient '{ingredient_id}' not found")
 
         row = RecipeIngredient(
             id=str(uuid.uuid4()),
             recipe_id=recipe_id,
             ingredient_id=ingredient_id,
-            ingredient_name=ingredient_name,
-            amount=amount,
+            quantity=str(quantity or '').strip(),
+            unit=str(unit or '').strip(),
             is_optional=is_optional,
-            sort_order=sort_order
+            sort_order=sort_order,
         )
 
         db.session.add(row)
         db.session.commit()
         return row.to_dict(include_ingredient=True)
+
+    @staticmethod
+    def _resolve_quantity_unit(data: dict) -> tuple[str, str]:
+        quantity = str(data.get('quantity', '') or '').strip()
+        unit = str(data.get('unit', '') or '').strip()
+        if not quantity and data.get('amount'):
+            quantity, unit = parse_legacy_amount(str(data['amount']))
+            quantity = quantity or ''
+            unit = unit or ''
+        return quantity, unit
 
     @staticmethod
     def update_recipe_ingredient(recipe_id, recipe_ingredient_id, **kwargs):
@@ -198,7 +215,11 @@ class RecipeService:
             if not ingredient:
                 raise ValueError(f"Ingredient '{kwargs['ingredient_id']}' not found")
 
-        allowed_fields = {'ingredient_id', 'ingredient_name', 'amount', 'is_optional', 'sort_order'}
+        allowed_fields = {'ingredient_id', 'quantity', 'unit', 'is_optional', 'sort_order'}
+        if 'amount' in kwargs and 'quantity' not in kwargs:
+            q, u = parse_legacy_amount(str(kwargs.pop('amount')))
+            kwargs.setdefault('quantity', q or '')
+            kwargs.setdefault('unit', u or '')
         for key, value in kwargs.items():
             if key in allowed_fields:
                 setattr(row, key, value)
@@ -292,15 +313,16 @@ class RecipeService:
                 if not ingredient:
                     raise ValueError(f"Ingredient '{ingredient_id}' not found")
 
-            amount = item.get('amount')
+            quantity, unit = RecipeService._resolve_quantity_unit(item)
 
             row = RecipeIngredient(
                 id=str(uuid.uuid4()),
                 recipe_id=recipe_id,
                 ingredient_id=ingredient_id,
-                amount=amount,
+                quantity=quantity,
+                unit=unit,
                 is_optional=item.get('is_optional', False),
-                sort_order=item.get('sort_order', index)
+                sort_order=item.get('sort_order', index),
             )
             db.session.add(row)
 

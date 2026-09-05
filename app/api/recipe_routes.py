@@ -373,18 +373,18 @@ def add_recipe_ingredient(recipe_id):
         schema:
           type: object
           required:
-            - ingredient_name
-            - amount
+            - ingredient_id
+            - quantity
           properties:
-            ingredient_name:
-              type: string
-              example: "Pasta"
-            amount:
-              type: string
-              example: "400g"
             ingredient_id:
               type: string
-              description: Ingredient UUID (optional)
+              description: Ingredient UUID
+            quantity:
+              type: string
+              example: "500"
+            unit:
+              type: string
+              example: "gram"
             is_optional:
               type: boolean
               default: false
@@ -403,7 +403,7 @@ def add_recipe_ingredient(recipe_id):
     if not data:
         return error_response('Request body is empty', 400)
 
-    required_fields = ['ingredient_name', 'amount']
+    required_fields = ['ingredient_id', 'quantity']
     for field in required_fields:
         if field not in data:
             return error_response(f'Missing required field: {field}', 400)
@@ -411,11 +411,11 @@ def add_recipe_ingredient(recipe_id):
     try:
         item = RecipeService.add_recipe_ingredient(
             recipe_id=recipe_id,
-            ingredient_name=data['ingredient_name'],
-            amount=data['amount'],
-            ingredient_id=data.get('ingredient_id'),
+            ingredient_id=data['ingredient_id'],
+            quantity=data['quantity'],
+            unit=data.get('unit', ''),
             is_optional=data.get('is_optional', False),
-            sort_order=data.get('sort_order', 0)
+            sort_order=data.get('sort_order', 0),
         )
     except ValueError as exc:
         message = str(exc)
@@ -450,7 +450,9 @@ def update_recipe_ingredient(recipe_id, recipe_ingredient_id):
           properties:
             ingredient_name:
               type: string
-            amount:
+            quantity:
+              type: string
+            unit:
               type: string
             ingredient_id:
               type: string
@@ -458,6 +460,9 @@ def update_recipe_ingredient(recipe_id, recipe_ingredient_id):
               type: boolean
             sort_order:
               type: integer
+            amount:
+              type: string
+              description: Deprecated — use quantity + unit
     responses:
       200:
         description: Recipe ingredient updated successfully

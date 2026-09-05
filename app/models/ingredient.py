@@ -1,6 +1,7 @@
 """Ingredient models"""
 from datetime import datetime
 from app.extensions import db
+from app.utils.media_url import resolve_image_url
 
 
 class IngredientCategory(db.Model):
@@ -61,7 +62,7 @@ class Ingredient(db.Model):
             'name': self.name,
             'icon': self.icon,
             'category_id': self.category_id,
-            'image_url': self.image_url,
+            'image_url': resolve_image_url(self.image_url, name=self.name),
             'is_popular': self.is_popular,
             'aliases': self.aliases or [],
             'created_at': self.created_at.isoformat() if self.created_at else None

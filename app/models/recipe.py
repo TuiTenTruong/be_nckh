@@ -1,6 +1,7 @@
 """Recipe models"""
 from datetime import datetime
 from app.extensions import db
+from app.utils.media_url import resolve_image_url
 
 
 class Recipe(db.Model):
@@ -16,6 +17,7 @@ class Recipe(db.Model):
     servings = db.Column(db.Integer, default=2, nullable=False)
     cuisine_type = db.Column(db.String(50))  # e.g., 'Viet Nam', 'Han Quoc'
     diet_tags = db.Column(db.JSON)  # e.g., ['chay', 'it dau mo']
+    source = db.Column(db.Text)  # Trích dẫn sách/nguồn (data_book.json)
     is_featured = db.Column(db.Boolean, default=False, index=True)
     total_favorites = db.Column(db.Integer, default=0)
     total_views = db.Column(db.Integer, default=0)
@@ -46,12 +48,13 @@ class Recipe(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'image_url': self.image_url,
+            'image_url': resolve_image_url(self.image_url, name=self.name),
             'cook_time_minutes': self.cook_time_minutes,
             'difficulty': self.difficulty,
             'servings': self.servings,
             'cuisine_type': self.cuisine_type,
             'diet_tags': self.diet_tags or [],
+            'source': self.source,
             'is_featured': self.is_featured,
             'total_favorites': self.total_favorites,
             'total_views': self.total_views,
